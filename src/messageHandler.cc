@@ -50,7 +50,7 @@ void MessageHandler::sendStringParameter(const string& param) const {
     }
 }
 
-int MessageHandler::recvByte() {
+int MessageHandler::recvByte() const {
     unsigned char code = (*conn).read();
     if (code == Connection::CONNECTION_CLOSED){ // Change after seeing how this is done in connection.
         throw ConnectionClosedException();
@@ -58,13 +58,13 @@ int MessageHandler::recvByte() {
     return static_cast<int>(code);
 }
 
-int MessageHandler::recvCode() {
+int MessageHandler::recvCode() const {
     int code = recvByte();
     // Log here?
     return code;
 }
 
-int MessageHandler::recvInt() {
+int MessageHandler::recvInt() const {
     int b1 = recvByte();
     int b2 = recvByte();
     int b3 = recvByte();
@@ -74,7 +74,7 @@ int MessageHandler::recvInt() {
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4; 
 }
 
-int MessageHandler::recvIntParameter() {
+int MessageHandler::recvIntParameter() const {
     int code = recvCode();
     if (code != static_cast<int>(Protocol::PAR_NUM)) {
         string msg = "Receive numeric parameter: code does not match Protocol::PAR_NUM: " + 
@@ -84,7 +84,7 @@ int MessageHandler::recvIntParameter() {
     return recvInt();
 }
 
-string MessageHandler::recvStringParameter() {
+string MessageHandler::recvStringParameter() const {
     int code = recvCode();
     if (code != static_cast<int>(Protocol::PAR_STRING)) {
         string msg = "Receive string parameter: code does not match Protocol::PAR_STRING: " + 

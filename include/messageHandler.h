@@ -36,16 +36,16 @@ class MessageHandler{
         void sendStringParameter(const std::string& param) const;
 
         /* Receive a command code or an error code from the server */
-        int recvCode();
+        int recvCode() const;
 
         /* Receive an int value from the server */
-        int recvInt();
+        int recvInt() const;
 
         /* Receive an int parameter from the server */
-        int recvIntParameter();
+        int recvIntParameter() const;
 
         /* Receive a string parameter from the server */
-        std::string recvStringParameter();
+        std::string recvStringParameter() const;
 
 
     protected:
@@ -55,7 +55,7 @@ class MessageHandler{
         void sendByte(const int code) const;
 
         /* Receives a byte using the connection */
-        int recvByte();
+        int recvByte() const;
 };
 
 #endif
