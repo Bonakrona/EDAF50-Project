@@ -10,11 +10,11 @@
 
 using std::string;
 
-MessageHandler::MessageHandler(Connection& conn) {
-    this -> conn = std::shared_ptr<Connection>(&conn); 
+MessageHandler::MessageHandler(const Connection& conn) {
+    this -> conn = std::shared_ptr<const Connection>(&conn); 
 }
 
-void MessageHandler::sendByte(int code) {
+void MessageHandler::sendByte(const int code) const{
     try {
         (*conn).write(static_cast<unsigned char>(code));
     }   catch (ConnectionClosedException e) { // This is most likely not the correct exception to look for.
@@ -22,12 +22,12 @@ void MessageHandler::sendByte(int code) {
     }
 };
 
-void MessageHandler::sendCode(int code) {
+void MessageHandler::sendCode(const int code) const{
     sendByte(code);
     // Somehow write to log
 }
 
-void MessageHandler::sendInt(int value) {
+void MessageHandler::sendInt(const int value) const{
     sendByte((value >> 24) & 0xFF);
     sendByte((value >> 16) & 0xFF);
     sendByte((value >> 8) & 0xFF);
@@ -35,16 +35,16 @@ void MessageHandler::sendInt(int value) {
     // Somehow log the intermediate steps to know what's going on?
 }
 
-void MessageHandler::sendIntParameter(int param) {
+void MessageHandler::sendIntParameter(const int param) const{
     sendCode(static_cast<int>(Protocol::PAR_NUM));
     sendInt(param);
     // Log here?
 }
 
-void MessageHandler::sendStringParameter(string param) {
+void MessageHandler::sendStringParameter(const string& param) const {
     sendCode(static_cast<int>(Protocol::PAR_STRING));
     sendInt(param.length());
-    for (string::iterator it = param.begin(); it != param.end(); ++it) {
+    for (string::const_iterator it = param.begin(); it != param.end(); ++it) {
         sendByte(*it);
         // Log here?
     }

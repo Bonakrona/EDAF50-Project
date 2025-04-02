@@ -12,7 +12,7 @@
 class MessageHandler{
     public: 
         /* Creates a message handaler for a specific connection */
-        MessageHandler(Connection& conn);
+        MessageHandler(const Connection& conn);
 
         // Unsure if this is needed: 
         //    /* Deletes the messaga handaler*/
@@ -24,16 +24,16 @@ class MessageHandler{
         //    MessageHandler& operator=(MessageHandler&&) = delete;
         
         /* Transmit a code */
-        void sendCode(int code);
+        void sendCode(const int code) const;
 
         /* Transmit an int value */
-        void sendInt(int value);
+        void sendInt(const int value) const;
 
         /* Transmit an int parameter */
-        void sendIntParameter(int param);
+        void sendIntParameter(const int param) const;
 
         /* Transmit a string parameter */
-        void sendStringParameter(std::string param);
+        void sendStringParameter(const std::string& param) const;
 
         /* Receive a command code or an error code from the server */
         int recvCode();
@@ -49,10 +49,10 @@ class MessageHandler{
 
 
     protected:
-        std::shared_ptr<Connection> conn; // Pointer to the connection in use
+        std::shared_ptr<const Connection> conn; // Pointer to the connection in use
 
         /* Sends a byte using the connection*/
-        void sendByte(int code);
+        void sendByte(const int code) const;
 
         /* Receives a byte using the connection */
         int recvByte();
