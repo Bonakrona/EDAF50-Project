@@ -1,10 +1,12 @@
 #include "messageHandler.h"
 #include "connection.h"
+#include "protocolviolationexception.h"
 #include "connectionclosedexception.h"
 #include "protocol.h"
 
 #include <memory>
 #include <string>
+#include <sstream>
 
 using std::string;
 
@@ -51,7 +53,7 @@ void MessageHandler::sendStringParameter(string param) {
 int MessageHandler::recvByte() {
     unsigned char code = (*conn).read();
     if (code == Connection::CONNECTION_CLOSED){ // Change after seeing how this is done in connection.
-        throw new ConnectionClosedException();
+        throw ConnectionClosedException();
     }
     return static_cast<int>(code);
 }
@@ -70,4 +72,34 @@ int MessageHandler::recvInt() {
     // Log here?
 
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4; 
+}
+
+int MessageHandler::recvIntParameter() {
+    int code = recvCode();
+    if (code != static_cast<int>(Protocol::PAR_NUM)) {
+        string msg = "Receive numeric parameter: code does not match Protocol::PAR_NUM: " + 
+        std::to_string(code) + "!=" + std::to_string(static_cast<int>(Protocol::PAR_NUM));
+        throw ProtocolViolationException(msg);
+    }
+    return recvInt();
+}
+
+string MessageHandler::recvStringParameter() {
+    int code = recvCode();
+    if (code != static_cast<int>(Protocol::PAR_STRING)) {
+        string msg = "Receive string parameter: code does not match Protocol::PAR_STRING: " + 
+        std::to_string(code) + "!=" + std::to_string(static_cast<int>(Protocol::PAR_STRING));
+        throw ProtocolViolationException(msg);
+    }
+    int n = recvInt();
+    if (n < 0) {
+        throw ProtocolViolationException("Receive string parameter: Number of characters < 0");
+    }
+    std::stringstream result;
+    for (int i = 0; i < n; i++) {
+        unsigned char ch = (*conn).read();
+        result << ch;
+        // Log here?
+    }
+    return result.str();
 }
