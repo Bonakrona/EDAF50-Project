@@ -2,7 +2,6 @@
 #define MESSAGEHANDLER_H
 
 #include "connection.h"
-#include "connectionclosedexception.h"
 #include "protocol.h"
 
 #include <string>

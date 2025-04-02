@@ -1,7 +1,6 @@
 #include "messageHandler.h"
 #include "connection.h"
 #include "protocolviolationexception.h"
-#include "connectionclosedexception.h"
 #include "protocol.h"
 
 #include <memory>
@@ -15,11 +14,7 @@ MessageHandler::MessageHandler(const Connection& conn) {
 }
 
 void MessageHandler::sendByte(const int code) const{
-    try {
-        (*conn).write(static_cast<unsigned char>(code));
-    }   catch (ConnectionClosedException e) { // This is most likely not the correct exception to look for.
-        throw new ConnectionClosedException();
-    }
+    (*conn).write(static_cast<unsigned char>(code));
 };
 
 void MessageHandler::sendCode(const int code) const{
@@ -52,9 +47,6 @@ void MessageHandler::sendStringParameter(const string& param) const {
 
 int MessageHandler::recvByte() const {
     unsigned char code = (*conn).read();
-    if (code == Connection::CONNECTION_CLOSED){ // Change after seeing how this is done in connection.
-        throw ConnectionClosedException();
-    }
     return static_cast<int>(code);
 }
 
