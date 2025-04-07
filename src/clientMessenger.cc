@@ -1,5 +1,7 @@
 #include <clientMessenger.h>
 #include <messageHandler.h>
+#include <protocol.h>
+#include <protocolviolationexception.h>
 
 #include <iostream>
 #include <string>
@@ -12,15 +14,113 @@ using std::cerr;
 using std::endl;
 
 void ClientMessenger::listNewsgroups(const MessageHandler& msg) const {
-    cout << "\n\n listNewsgroups is incomplete \n\n";
+    // Send command
+    msg.sendCode(static_cast<int>(Protocol::COM_LIST_NG));
+    msg.sendCode(static_cast<int>(Protocol::COM_END));
+    
+    // Receive responce and print
+    int rcode;
+    rcode = msg.recvCode();
+    if (rcode != static_cast<int>(Protocol::ANS_LIST_NG)) {
+        throw ProtocolViolationException("Incorrect starting code when using listNewsgroups()");
+    }
+
+    int numberOfng = msg.recvIntParameter();
+    cout << "There are " << numberOfng << " newsgroups: \n";
+    for (int i = 0; i < numberOfng; ++i) {
+        int ngID = msg.recvIntParameter();
+        string ngName = msg.recvStringParameter();
+
+        cout << endl << ngName << "with ID: " << ngID;
+    }
+    cout << endl;
+
+    rcode = msg.recvCode();
+    if (rcode != static_cast<int>(Protocol::ANS_END)) {
+        throw ProtocolViolationException("Incorrect terminating code when using listNewsgroups()");
+    }
 }
 
 void ClientMessenger::createNewsgroup(const MessageHandler& msg) const {
-    cout << "\n\n createNewsgroup is incomplete \n\n";
+    // Enter name
+    string ngName;
+    cout << "Enter name of newsgroup to create:\n";
+    cin >> ngName; 
+
+    while (ngName.empty()) {
+        cin >> ngName; 
+    }
+
+    // Send command
+    msg.sendCode(static_cast<int>(Protocol::COM_CREATE_NG));
+    msg.sendStringParameter(ngName);
+    msg.sendCode(static_cast<int>(Protocol::COM_END));
+
+    // Receive response
+    int rStartCode = msg.recvCode();
+    if (rStartCode != static_cast<int>(Protocol::ANS_CREATE_NG)) {
+        throw ProtocolViolationException("Incorrect starting code when using createNewsgroup()");
+    }
+    
+    int ack = msg.recvCode();
+
+    if (ack == static_cast<int>(Protocol::ANS_NAK)) {
+        ack = msg.recvCode();
+        cout << "Newsgroup with name " << ngName << " already exists. No new newsgroup was created.\n"; 
+    } else {
+        cout << "Newsgroup was created with name \"" << ngName << "\".\n";
+    }
+
+    int rTerminateCode = msg.recvCode();
+    if (rTerminateCode != static_cast<int>(Protocol::ANS_END)) {
+        throw ProtocolViolationException("Incorrect terminating code when using createNewsgroup()");
+    }
 }
 
 void ClientMessenger::deleteNewsgroup(const MessageHandler& msg) const {
-    cout << "\n\n deleteNewsgroup is incomplete \n\n";
+    // Enter name
+    string ngIDstr;
+    cout << "Enter integer ID of newsgroup to delete:\n";
+    cin >> ngIDstr; // I don't think that this is a way that we can chack for only integers with.
+    string::const_iterator it = ngIDstr.begin();
+    while (it != ngIDstr.end() && std::isdigit(*it)) ++it;
+
+    while (!(!ngIDstr.empty() && it == ngIDstr.end())) {
+        if (it == ngIDstr.end()) {
+            cout << "Enter an integer ID.\n";
+        }
+
+        cin >> ngIDstr; 
+        string::const_iterator it = ngIDstr.begin();
+        while (it != ngIDstr.end() && std::isdigit(*it)) ++it;
+    }
+
+    int ngID = std::stoi(ngIDstr);
+
+    // Send command
+    msg.sendCode(static_cast<int>(Protocol::COM_DELETE_NG));
+    msg.sendIntParameter(ngID);
+    msg.sendCode(static_cast<int>(Protocol::COM_END));
+
+    // Receive response
+    int rStartCode = msg.recvCode();
+    if (rStartCode != static_cast<int>(Protocol::ANS_DELETE_NG)) {
+        throw ProtocolViolationException("Incorrect starting code when using deleteNewsgroup()");
+    }
+    
+    int ack = msg.recvCode();
+
+    if (ack == static_cast<int>(Protocol::ANS_NAK)) {
+        ack = msg.recvCode();
+        cout << "Newsgroup with ID " << ngID << " does not exists. No newsgroup was deleted.\n"; 
+    } else {
+        cout << "Newsgroup was deleted with ID \"" << ngID << "\".";
+    }
+
+    int rTerminateCode = msg.recvCode();
+    if (rTerminateCode != static_cast<int>(Protocol::ANS_END)) {
+        throw ProtocolViolationException("Incorrect terminating code when using deleteNewsgroup()");
+    }
 }
 
 void ClientMessenger::listArticles(const MessageHandler& msg) const {

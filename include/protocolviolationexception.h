@@ -9,5 +9,9 @@ struct ProtocolViolationException {
     ProtocolViolationException(const std::string& msg) {
         std::string m = msg;
     };
+
+    ProtocolViolationException() {
+        std::string m = "No message.";
+    }
 };
 #endif
