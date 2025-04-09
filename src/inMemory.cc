@@ -1,10 +1,11 @@
-#include "database.h"
+#include "inMemory.h"
 
-Database::Database(){
+
+inMemory::inMemory(){
     nextNewsgroupID = 1;
 };
 
-bool Database::addNewsgroup(const std::string n){
+bool inMemory::addNewsgroup(const std::string n){
     if(newsgroupNames.find(n) != newsgroupNames.end()){
         return false;
     }else{
@@ -15,7 +16,7 @@ bool Database::addNewsgroup(const std::string n){
     }
 };
 
-std::optional<Newsgroup> Database::getNewsgroup(unsigned long long id) const{
+std::optional<Newsgroup> inMemory::getNewsgroup(unsigned long long id) const{
     auto it = newsgroups.find(id);
     if(it != newsgroups.end()){
         return it->second;
@@ -24,7 +25,7 @@ std::optional<Newsgroup> Database::getNewsgroup(unsigned long long id) const{
     }
 };
 
-bool Database::removeNewsgroup(unsigned long long id) {
+bool inMemory::removeNewsgroup(unsigned long long id) {
     auto it = newsgroups.find(id);
     if (it != newsgroups.end()) {
         newsgroupNames.erase(it->second.get_name());
@@ -34,7 +35,7 @@ bool Database::removeNewsgroup(unsigned long long id) {
     return false;
 };
 
-std::vector<Newsgroup> Database::listNewsgroups() {
+std::vector<Newsgroup> inMemory::listNewsgroups() {
     std::vector<Newsgroup> res;
     for (const auto &pair: newsgroups) {
         res.push_back(pair.second);
