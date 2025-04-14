@@ -18,10 +18,11 @@ public:
     bool removeNewsgroup(unsigned long long id);
     std::optional<Newsgroup> getNewsgroup(unsigned long long id) const;
 
-    std::vector<Article> ListArticles(Newsgroup &ng);
-    bool addArticle(const std::string &t, const std::string &a, const std::string &txt);
-    bool removeArticle(unsigned long long id);
-    std::optional<Article> getArticle(unsigned long long id);
+    std::vector<Article> ListNewsgroupsArticles(Newsgroup &ng);
+    bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng);
+    
+    bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng);
+    std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const;
 
 private:
     std::map<unsigned long long, Newsgroup> newsgroups;

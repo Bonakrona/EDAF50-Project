@@ -41,12 +41,20 @@ std::vector<Newsgroup> inMemory::listNewsgroups() {
         res.push_back(pair.second);
     }
     return res;
-    // if (newsgroups.empty()) {
-    //     std::cout << "No newsgroups available.\n";
-    //     return;
-    // }
+}
 
-    // for (const auto& pair : newsgroups) {
-    //     std::cout << "ID: " << pair.first << "; Name: " << pair.second.get_name() << "\n";
-    // }
+std::vector<Article> inMemory::ListNewsgroupsArticles(Newsgroup &ng) {
+    return ng.listArticles();
+}
+
+bool inMemory::addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng) {
+    return ng.addArticle(t, a, txt);
+}
+
+bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng) {
+    return ng.removeArticle(id);
+}
+
+std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) {
+    return ng.getArticle(id);
 }

@@ -18,28 +18,6 @@ bool Newsgroup::addArticle(const std::string &t, const std::string &a, const std
     return true;
 };
 
-bool Newsgroup::writeArticle()
-{
-    std::string title, author, text;
-
-    std::cout << "Enter the articles title: ";
-    std::getline(std::cin, title);
-
-    std::cout << "Enter the articles author: ";
-    std::getline(std::cin, author);
-
-    std::cout << "Enter the article text and end with an empty line: \n";
-    std::string line;
-    while (true)
-    {
-        std::getline(std::cin, line);
-        if (line.empty())
-            break;
-        text += line + "\n";
-    };
-    return addArticle(title, author, text);
-};
-
 std::optional<Article> Newsgroup::getArticle(unsigned long long id) const
 {
     auto it = articles.find(id);
@@ -65,7 +43,7 @@ bool Newsgroup::removeArticle(unsigned long long id)
     return false; // Article not found
 };
 
-std::vector<Article> Newsgroup::listArticles(Newsgroup &ng) const
+std::vector<Article> Newsgroup::listArticles() const
 {
     std::vector<Article> res;
 
