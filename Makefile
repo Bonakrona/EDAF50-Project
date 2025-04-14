@@ -1,53 +1,35 @@
-# Define the compiler and the linker. The linker must be defined since
-# the implicit rule for linking uses CC as the linker. g++ can be
-# changed to clang++.
+# Compiler settings
 CXX = g++
-CC  = $(CXX)
+CXXFLAGS = -Wall -std=c++17
 
-# Generate dependencies in *.d files
-DEPFLAGS = -MT $@ -MMD -MP -MF $*.d
+# Directories
+SRC_DIR = .
+OBJ_DIR = obj
+BIN_DIR = bin
 
-# Define preprocessor, compiler, and linker flags. Uncomment the # lines
-# if you use clang++ and wish to use libc++ instead of GNU's libstdc++.
-# -g is for debugging.
-CPPFLAGS =  -Iinclude
-CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast 
-CXXFLAGS += -std=c++11 
-CXXFLAGS += -g
-CXXFLAGS += $(DEPFLAGS)
-LDFLAGS =   -g -Llib
-#CPPFLAGS += -stdlib=libc++
-#CXXFLAGS += -stdlib=libc++
-#LDFLAGS +=  -stdlib=libc++
+# Output Executable Name
+EXEC = $(BIN_DIR)/TestDatabase
 
-# Targets
+# Source and Object files
+SRC_FILES = $(SRC_DIR)/src/inMemory.cc $(SRC_DIR)/src/article.cc $(SRC_DIR)/src/newsgroup.cc $(SRC_DIR)/src/TestDatabase.cc
+OBJ_FILES = $(SRC_FILES:$(SRC_DIR)/src/%.cc=$(OBJ_DIR)/%.o)
 
-all: lib/libclientserver.a
-	make -C example
+# Default target to build the executable
+all: $(EXEC)
 
-# Create the library; ranlib is for Darwin (OS X) and maybe other systems.
-# Doesn't seem to do any damage on other systems.
+# Rule for building the executable
+$(EXEC): $(OBJ_FILES)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(OBJ_FILES) -o $(EXEC)
 
-lib/libclientserver.a: src/connection.o src/server.o
-	mkdir -p lib
-	ar rv lib/libclientserver.a  src/connection.o src/server.o
-	ranlib lib/libclientserver.a
+# Rule for creating object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/src/%.cc
+	@mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Phony targets
-.PHONY: all clean distclean
-
-SRC = $(wildcard src/*.cc)
-
-# Standard clean
+# Clean target to remove object files and executable
 clean:
-	-rm $(SRC:.cc=.o) $(PROGS)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-distclean: clean
-	-rm lib/libclientserver.a
-	-rmdir lib
-	-rm $(SRC:.cc=.d) 
-	make -C example distclean
-
-
-# Include the *.d files
--include $(SRC:.cc=.d)
+# Phony targets (clean, all)
+.PHONY: all clean

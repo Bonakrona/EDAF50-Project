@@ -17,10 +17,10 @@ public:
     virtual bool removeNewsgroup(unsigned long long id) = 0;
     virtual std::optional<Newsgroup> getNewsgroup(unsigned long long id) const = 0;
 
-    virtual std::vector<Article> ListArticles(Newsgroup &ng) = 0;
-    virtual bool addArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng) = 0;
-    virtual bool removeArticle(unsigned long long id, Newsgroup &ng) = 0;
-    virtual std::optional<Article> getArticle(unsigned long long id, Newsgroup &ng) const = 0;
+    virtual std::vector<Article> ListNewsgroupsArticles(Newsgroup &ng) = 0;
+    virtual bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng) = 0;
+    virtual bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng) = 0;
+    virtual std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const = 0;
 };
 
 #endif

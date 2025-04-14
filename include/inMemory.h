@@ -20,7 +20,6 @@ public:
 
     std::vector<Article> ListNewsgroupsArticles(Newsgroup &ng);
     bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng);
-    
     bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng);
     std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const;
 
