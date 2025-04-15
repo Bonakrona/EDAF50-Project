@@ -9,87 +9,83 @@
 
 using std::string;
 
-MessageHandler::MessageHandler(const Connection& conn) {
-    this -> conn = std::shared_ptr<const Connection>(&conn); 
-}
-
-void MessageHandler::sendByte(const int code) const{
-    (*conn).write(static_cast<unsigned char>(code));
+void MessageHandler::sendByte(const Connection& conn,const int code) const{
+    conn.write(static_cast<unsigned char>(code));
 };
 
-void MessageHandler::sendCode(const int code) const{
-    sendByte(code);
+void MessageHandler::sendCode(const Connection& conn,const int code) const{
+    sendByte(conn,code);
     // Somehow write to log
 }
 
-void MessageHandler::sendInt(const int value) const{
-    sendByte((value >> 24) & 0xFF);
-    sendByte((value >> 16) & 0xFF);
-    sendByte((value >> 8) & 0xFF);
-    sendByte(value & 0xFF);
+void MessageHandler::sendInt(const Connection& conn,const int value) const{
+    sendByte(conn,(value >> 24) & 0xFF);
+    sendByte(conn,(value >> 16) & 0xFF);
+    sendByte(conn,(value >> 8) & 0xFF);
+    sendByte(conn,value & 0xFF);
     // Somehow log the intermediate steps to know what's going on?
 }
 
-void MessageHandler::sendIntParameter(const int param) const{
-    sendCode(static_cast<int>(Protocol::PAR_NUM));
-    sendInt(param);
+void MessageHandler::sendIntParameter(const Connection& conn,const int param) const{
+    sendCode(conn,static_cast<int>(Protocol::PAR_NUM));
+    sendInt(conn,param);
     // Log here?
 }
 
-void MessageHandler::sendStringParameter(const string& param) const {
-    sendCode(static_cast<int>(Protocol::PAR_STRING));
-    sendInt(param.length());
+void MessageHandler::sendStringParameter(const Connection& conn,const string& param) const {
+    sendCode(conn,static_cast<int>(Protocol::PAR_STRING));
+    sendInt(conn,param.length());
     for (string::const_iterator it = param.begin(); it != param.end(); ++it) {
-        sendByte(*it);
+        sendByte(conn,*it);
         // Log here?
     }
 }
 
-int MessageHandler::recvByte() const {
-    unsigned char code = (*conn).read();
+int MessageHandler::recvByte(const Connection& conn) const {
+    unsigned char code = conn.read();
     return static_cast<int>(code);
 }
 
-int MessageHandler::recvCode() const {
-    int code = recvByte();
+int MessageHandler::recvCode(const Connection& conn) const {
+    int code = recvByte(conn);
     // Log here?
     return code;
 }
 
-int MessageHandler::recvInt() const {
-    int b1 = recvByte();
-    int b2 = recvByte();
-    int b3 = recvByte();
-    int b4 = recvByte();
+int MessageHandler::recvInt(const Connection& conn) const {
+    int b1 = recvByte(conn);
+    int b2 = recvByte(conn);
+    int b3 = recvByte(conn);
+    int b4 = recvByte(conn);
     // Log here?
 
     return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4; 
 }
 
-int MessageHandler::recvIntParameter() const {
-    int code = recvCode();
+int MessageHandler::recvIntParameter(const Connection& conn) const {
+    int code = recvCode(conn);
     if (code != static_cast<int>(Protocol::PAR_NUM)) {
         string msg = "Receive numeric parameter: code does not match Protocol::PAR_NUM: " + 
         std::to_string(code) + "!=" + std::to_string(static_cast<int>(Protocol::PAR_NUM));
         throw ProtocolViolationException(msg);
     }
-    return recvInt();
+    return recvInt(conn);
 }
 
-string MessageHandler::recvStringParameter() const {
-    int code = recvCode();
+string MessageHandler::recvStringParameter(const Connection& conn) const {
+    int code = recvCode(conn);
     if (code != static_cast<int>(Protocol::PAR_STRING)) {
         string msg = "Receive string parameter: code does not match Protocol::PAR_STRING: " + 
         std::to_string(code) + "!=" + std::to_string(static_cast<int>(Protocol::PAR_STRING));
         throw ProtocolViolationException(msg);
     }
-    int n = recvInt();
+    int n = recvInt(conn);
     if (n < 0) {
         throw ProtocolViolationException("Receive string parameter: Number of characters < 0");
     }
     std::stringstream result;
     for (int i = 0; i < n; i++) {
-        unsigned char ch = (*conn).read();
+        unsigned char ch = conn.read();
         result << ch;
         // Log here?
     }

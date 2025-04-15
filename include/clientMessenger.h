@@ -7,23 +7,24 @@
 class ClientMessenger {
     public:
         /* Creates the client messenger. */
-        ClientMessenger() = default;
+        ClientMessenger();
 
-        void listNewsgroups(const MessageHandler& msg) const;
+        void listNewsgroups(const Connection& conn) const;
 
-        void createNewsgroup(const MessageHandler& msg) const;
+        void createNewsgroup(const Connection& conn) const;
 
-        void deleteNewsgroup(const MessageHandler& msg) const;
+        void deleteNewsgroup(const Connection& conn) const;
 
-        void listArticles(const MessageHandler& msg) const;
+        void listArticles(const Connection& conn) const;
 
-        void createArticle(const MessageHandler& msg) const;
+        void createArticle(const Connection& conn) const;
         
-        void deleteArticle(const MessageHandler& msg) const;
+        void deleteArticle(const Connection& conn) const;
 
-        void getArticle(const MessageHandler& msg) const;
+        void getArticle(const Connection& conn) const;
         
     protected:
+        MessageHandler msg;
 };
 
 #endif  

@@ -11,7 +11,7 @@
 class MessageHandler{
     public: 
         /* Creates a message handaler for a specific connection */
-        MessageHandler(const Connection& conn);
+        MessageHandler() = default;
 
         // Unsure if this is needed: 
         //    /* Deletes the messaga handaler*/
@@ -23,38 +23,36 @@ class MessageHandler{
         //    MessageHandler& operator=(MessageHandler&&) = delete;
         
         /* Transmit a code */
-        void sendCode(const int code) const;
+        void sendCode(const Connection& conn, const int code) const;
 
         /* Transmit an int value */
-        void sendInt(const int value) const;
+        void sendInt(const Connection& conn, const int value) const;
 
         /* Transmit an int parameter */
-        void sendIntParameter(const int param) const;
+        void sendIntParameter(const Connection& conn, const int param) const;
 
         /* Transmit a string parameter */
-        void sendStringParameter(const std::string& param) const;
+        void sendStringParameter(const Connection& conn, const std::string& param) const;
 
         /* Receive a command code or an error code from the server */
-        int recvCode() const;
+        int recvCode(const Connection& conn) const;
 
         /* Receive an int value from the server */
-        int recvInt() const;
+        int recvInt(const Connection& conn) const;
 
         /* Receive an int parameter from the server */
-        int recvIntParameter() const;
+        int recvIntParameter(const Connection& conn) const;
 
         /* Receive a string parameter from the server */
-        std::string recvStringParameter() const;
+        std::string recvStringParameter(const Connection& conn) const;
 
 
     protected:
-        std::shared_ptr<const Connection> conn; // Pointer to the connection in use
-
         /* Sends a byte using the connection*/
-        void sendByte(const int code) const;
+        void sendByte(const Connection& conn,const int code) const;
 
         /* Receives a byte using the connection */
-        int recvByte() const;
+        int recvByte(const Connection& conn) const;
 };
 
 #endif

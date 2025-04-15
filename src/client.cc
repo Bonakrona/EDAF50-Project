@@ -95,26 +95,26 @@ string inputCommand() {
 
 int app(const Connection& conn) {
 
-    MessageHandler msg(conn);
+    MessageHandler msg();
     ClientMessenger cm;
 
     string command = inputCommand();
     
     try {
         if (command == "list_newsgroups") {
-            cm.listNewsgroups(msg);
+            cm.listNewsgroups(conn);
         } else if (command == "create_newsgroup") {
-            cm.createNewsgroup(msg);
+            cm.createNewsgroup(conn);
         } else if (command == "delete_newsgroup") {
-            cm.deleteNewsgroup(msg);
+            cm.deleteNewsgroup(conn);
         } else if (command == "list_articles") {
-            cm.listArticles(msg);
+            cm.listArticles(conn);
         } else if (command == "create_article") {
-            cm.createArticle(msg);
+            cm.createArticle(conn);
         } else if (command == "delete_article") {
-            cm.deleteArticle(msg);
+            cm.deleteArticle(conn);
         } else if (command == "get_article") {
-            cm.getArticle(msg);
+            cm.getArticle(conn);
         } else {
             cerr << "\n\n\n Incorrect command was accepted. Hopefully you never read this, check that inputCommand() works correctly.";
             exit(3);
