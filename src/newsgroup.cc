@@ -11,11 +11,15 @@ Newsgroup::Newsgroup(const std::string &n)
 
 bool Newsgroup::addArticle(const std::string &t, const std::string &a, const std::string &txt)
 {
-    articles[nextArcticleID] = Article(t, a, txt, nextArcticleID);
-    articleTitles.insert(t);
-    // std::cout << "Your article has been created with the ID:" << nextArcticleID << "\n";
-    nextArcticleID++;
-    return true;
+    if(articleTitles.find(t) != articleTitles.end()){
+        return false;
+    }else{
+        articles[nextArcticleID] = Article(t, a, txt, nextArcticleID);
+        articleTitles.insert(t);
+        //std::cout << "Your article has been created with the ID:" << nextArcticleID << "\n";
+        nextArcticleID++;
+        return true;
+    }
 };
 
 std::optional<Article> Newsgroup::getArticle(unsigned long long id) const

@@ -2,54 +2,42 @@
 # the implicit rule for linking uses CC as the linker. g++ can be
 # changed to clang++.
 CXX = g++
-CC  = $(CXX)
+CXXFLAGS = -Wall -std=c++17 -Iinclude
 
-# Generate dependencies in *.d files
-DEPFLAGS = -MT $@ -MMD -MP -MF $*.d
+# Directories
+SRC := src
+OBJ := obj
+BIN := bin
 
-# Define preprocessor, compiler, and linker flags. Uncomment the # lines
-# if you use clang++ and wish to use libc++ instead of GNU's libstdc++.
-# -g is for debugging.
-CPPFLAGS =  -Iinclude
-CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast 
-CXXFLAGS += -std=c++11 
-CXXFLAGS += -g
-CXXFLAGS += $(DEPFLAGS)
-LDFLAGS =   -g -Llib
-#CPPFLAGS += -stdlib=libc++
-#CXXFLAGS += -stdlib=libc++
-#LDFLAGS +=  -stdlib=libc++
+# Output Executable Name
+TEST_DB = $(BIN)/TestDatabase
 
-# Targets
+# Source and Object files
+TEST_DB_SRCS := \
+	$(SRC)/article.cc \
+	$(SRC)/newsgroup.cc \
+	$(SRC)/inMemory.cc \
+	$(SRC)/TestDatabase.cc
 
-all: lib/libclientserver.a
-	make -C example
-	make -C program
+TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
 
-# Create the library; ranlib is for Darwin (OS X) and maybe other systems.
-# Doesn't seem to do any damage on other systems.
+# Default target to build the executable
+# all: 
+test_db: $(TEST_DB)
 
-lib/libclientserver.a: src/connection.o src/server.o
-	mkdir -p lib
-	ar rv lib/libclientserver.a  src/connection.o src/server.o
-	ranlib lib/libclientserver.a
+# Rule for building the executable
+$(TEST_DB): $(TEST_DB_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $(TEST_DB_OBJS) -o $(TEST_DB)
 
-# Phony targets
-.PHONY: all clean distclean
+# Rule for creating object files
+$(OBJ)/%.o: $(SRC)/%.cc
+	@mkdir -p $(OBJ)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-SRC = $(wildcard src/*.cc)
-
-# Standard clean
+# Clean target to remove object files and executable
 clean:
-	-rm $(SRC:.cc=.o) $(PROGS)
+	rm -rf $(OBJ) $(BIN)
 
-distclean: clean
-	-rm lib/libclientserver.a
-	-rmdir lib
-	-rm $(SRC:.cc=.d) 
-	make -C example distclean
-	make -C program distclean
-
-
-# Include the *.d files
--include $(SRC:.cc=.d)
+# Phony targets (clean, all)
+.PHONY: all clean test_db
