@@ -10,7 +10,7 @@
 /* A low-level message handler that handles messaging to and from the server */
 class MessageHandler{
     public: 
-        /* Creates a message handaler for a specific connection */
+        /* Creates a message handaler */
         MessageHandler() = default;
 
         // Unsure if this is needed: 
@@ -34,20 +34,20 @@ class MessageHandler{
         /* Transmit a string parameter */
         void sendStringParameter(const Connection& conn, const std::string& param) const;
 
-        /* Receive a command code or an error code from the server */
+        /* Receive a command code or an error code */
         int recvCode(const Connection& conn) const;
 
-        /* Receive an int value from the server */
+        /* Receive an int value */
         int recvInt(const Connection& conn) const;
 
-        /* Receive an int parameter from the server */
+        /* Receive an int parameter */
         int recvIntParameter(const Connection& conn) const;
 
-        /* Receive a string parameter from the server */
+        /* Receive a string parameter */
         std::string recvStringParameter(const Connection& conn) const;
 
 
-    protected:
+    private:
         /* Sends a byte using the connection*/
         void sendByte(const Connection& conn,const int code) const;
 

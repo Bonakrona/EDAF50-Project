@@ -1,6 +1,8 @@
 #ifndef CLIENTMESSENGER_H
 #define CLIENTMESSENGER_H
 
+#include <string>
+
 #include "connection.h"
 #include "messageHandler.h"
 
@@ -23,8 +25,10 @@ class ClientMessenger {
 
         void getArticle(const Connection& conn) const;
         
-    protected:
+    private:
         MessageHandler msg;
+
+        int inputID(const std::string& IDtype) const;
 };
 
 #endif  

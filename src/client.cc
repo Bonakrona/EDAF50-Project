@@ -30,7 +30,7 @@ std::set<std::string> commands {
 Connection setupConnection(int argc, char* argv[]) {
 
     if (argc != 3) {
-        cerr << "Usage: myclient host-name port-number" << endl;
+        cerr << "Usage: client host-name port-number" << endl;
         exit(1);
     }
 
@@ -95,8 +95,7 @@ string inputCommand() {
 
 int app(const Connection& conn) {
 
-    MessageHandler msg();
-    ClientMessenger cm;
+    ClientMessenger cm{};
 
     string command = inputCommand();
     
@@ -152,5 +151,7 @@ int app(const Connection& conn) {
 int main(int argc, char* argv[]) {
 
     Connection conn = setupConnection(argc, argv);
+    while (app(conn)){}
+    
     return app(conn);
 }
