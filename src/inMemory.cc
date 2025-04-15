@@ -43,7 +43,7 @@ std::vector<Newsgroup> inMemory::listNewsgroups() {
     return res;
 }
 
-std::vector<Article> inMemory::ListNewsgroupsArticles(Newsgroup &ng) {
+std::vector<Article> inMemory::listNewsgroupsArticles(Newsgroup &ng) {
     return ng.listArticles();
 }
 
@@ -51,10 +51,10 @@ bool inMemory::addNewsgroupsArticle(const std::string &t, const std::string &a, 
     return ng.addArticle(t, a, txt);
 }
 
-bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng) {
+bool inMemory::removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng) {
     return ng.removeArticle(id);
 }
 
-std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) {
+std::optional<Article> inMemory::getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const{
     return ng.getArticle(id);
 }
