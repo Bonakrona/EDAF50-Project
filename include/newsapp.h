@@ -23,12 +23,12 @@ class NewsApp {
         void createGroup(std::shared_ptr<Connection>& conn, const string name);
         void deleteGroup(std::shared_ptr<Connection>& conn, int ngId);
         
-        void listArticles(std::shared_ptr<Connection>& conn, Newsgroup &ng);
-        void createArticle(std::shared_ptr<Connection>& conn, const string &title, const string &author, const string &txt, Newsgroup &ng);
-        void deleteArticle(std::shared_ptr<Connection>& conn, int id, Newsgroup &ng);
+        void listArticles(std::shared_ptr<Connection>& conn, int ngId);
+        void createArticle(std::shared_ptr<Connection>& conn, const string &title, const string &author, const string &txt, int ngId);
+        void deleteArticle(std::shared_ptr<Connection>& conn, int id, int ngId);
 
-        std::unique_ptr<Database> database; // obs: must be pointer or ref when abstract class
-        MessageHandler messageHandler;
+        std::unique_ptr<Database> db; // obs: must be pointer or ref when abstract class
+        MessageHandler mh;
 
 };
 
