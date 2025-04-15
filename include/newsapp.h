@@ -12,29 +12,22 @@ using std::vector;
 
 class NewsApp {
     public:
-        // initializes a Server on 'port' with Database 'db'
-        // NewsApp(Server* serv, Database* db);
-        // NewsApp(MessageHandler mh, Database* db);
         NewsApp(std::unique_ptr<Database> db, MessageHandler mh);
 
+        // facilitate commands via private methods, defined below
+        // based on the protocol defined in "protocol.h"
         void process_request(std::shared_ptr<Connection>& conn);
 
-        /* Used in main server loop? Or remove and outsource to main file? */
-        void serve_client();
-
-        vector<string> list_groups();
-        // TODO: add suitable parameters
-        // TODO: change return value from 'bool' to 'int'? (for error codes)
-        bool create_group();
-        bool delete_group();
-        
-        // TODO: add suitable parameters
-        // TODO: change return value from 'bool' to 'int'? (for error codes)
-        vector<string> list_articles();
-        bool create_article();
-        bool delete_article();
-        
     private:
+    // TODO: change return values from 'bool' to 'int'? (for error codes)
+        vector<string> listGroups();
+        bool createGroup(const string name);
+        bool deleteGroup(int ngId);
+        
+        vector<string> listArticles(Newsgroup &ng);
+        bool createArticle(const string &title, const string &author, const string &txt, Newsgroup &ng);
+        bool deleteArticle(int id, Newsgroup &ng);
+
         std::unique_ptr<Database> database; // obs: must be pointer or ref when abstract class
         MessageHandler messageHandler;
 

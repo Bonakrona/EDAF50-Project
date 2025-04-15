@@ -29,7 +29,6 @@ TEST_DB_SRCS := \
 
 TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
 
-# Default target to build the executable
 test_db: $(TEST_DB)
 
 $(eval $(call build_executable,$(TEST_DB),$(TEST_DB_OBJS)))
