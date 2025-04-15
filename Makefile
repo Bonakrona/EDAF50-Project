@@ -10,6 +10,12 @@ OBJ := obj
 BIN := bin
 
 ### TARGETS
+# Macro for building the executable
+define build_executable
+$1: $2
+	@mkdir -p $(BIN)
+	$(CXX) $2 -o $1
+endef
 ## TEST DATABASE:
 # Output Executable Name
 TEST_DB = $(BIN)/TestDatabase
@@ -26,10 +32,7 @@ TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
 # Default target to build the executable
 test_db: $(TEST_DB)
 
-# Rule for building the executable
-$(TEST_DB): $(TEST_DB_OBJS)
-	@mkdir -p $(BIN)
-	$(CXX) $(TEST_DB_OBJS) -o $(TEST_DB)
+$(eval $(call build_executable,$(TEST_DB),$(TEST_DB_OBJS)))
 
 ## SERVER:
 SERVER = $(BIN)/server
@@ -46,9 +49,7 @@ SERVER_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_SRCS))
 
 server: $(SERVER)
 
-$(SERVER): $(SERVER_OBJS)
-	@mkdir -p $(BIN)
-	$(CXX) $(SERVER_OBJS) -o $(SERVER)
+$(eval $(call build_executable,$(SERVER),$(SERVER_OBJS)))
 
 # Rule for creating object files
 $(OBJ)/%.o: $(SRC)/%.cc
