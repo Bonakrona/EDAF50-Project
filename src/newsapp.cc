@@ -1,40 +1,69 @@
 
 #include "newsapp.h"
-// #include "database.h"
-#include "connection.h"
+#include "protocol.h"
 
 #include <iostream>
-#include <string>
-// NewsApp::NewsApp(Server* serv, Database* db) {
-//     server = serv;
-//     database = db;
-// }
 
-// NewsApp::NewsApp(MessageHandler mh, Database* db) {
-//     mh = mh;
-//     database = db;
-// }
+using std::string;
+using std::vector;
 
-NewsApp::NewsApp(std::unique_ptr<Database> db, MessageHandler mh) : database(std::move(db)), messageHandler(mh) {
-}
+NewsApp::NewsApp(std::unique_ptr<Database> db, MessageHandler mh) : database(std::move(db)), messageHandler(mh) {}
 
-int readNumber(const std::shared_ptr<Connection>& conn)
-{
-    unsigned char byte1 = conn->read();
-    unsigned char byte2 = conn->read();
-    unsigned char byte3 = conn->read();
-    unsigned char byte4 = conn->read();
-    return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-}
+void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
 
+    Protocol code = static_cast<Protocol>(messageHandler.recvCode(conn));
+    switch (code) {
+        case Protocol::COM_LIST_NG:
+            listGroups(conn);
+            break;
+        case Protocol::COM_CREATE_NG:
 
+            break;
+        case Protocol::COM_DELETE_NG:
+        
+            break;
+        case Protocol::COM_LIST_ART:
+        
+            break;
+        case Protocol::COM_CREATE_ART:
+        
+            break;
+        case Protocol::COM_DELETE_ART:
+        
+            break;
+        case Protocol::COM_GET_ART:
 
-void NewsApp::process_request(std::shared_ptr<Connection>& conn) {
-    // MOCK IMPL: read and return integer from client.
-    int nbr = readNumber(conn);
-    std::string s = std::to_string(nbr);
-    for (char c : s) {
-        conn->write(c);
+            break;
+        default:
+            // TODO
+            // UNDEFINED CODE -> DISCONNECT CLIENT
+            // conn->~Connection() <- ??
+            std::cerr << "Invalid Command. Disconnecting Client...\n";
+            return;
     }
-    conn->write('$');
+}
+
+void NewsApp::listGroups(std::shared_ptr<Connection>& conn) {
+    vector<Newsgroup> groups = database->listNewsgroups();
+    // ...
+}
+
+void createGroup(std::shared_ptr<Connection>& conn, const string name) {
+
+}
+
+void NewsApp::deleteGroup(std::shared_ptr<Connection>& conn, int ngId) {
+
+}
+
+void NewsApp::listArticles(std::shared_ptr<Connection>& conn, Newsgroup &ng) {
+
+}
+
+void NewsApp::createArticle(std::shared_ptr<Connection>& conn, const string &title, const string &author, const string &txt, Newsgroup &ng) {
+
+}
+
+void NewsApp::deleteArticle(std::shared_ptr<Connection>& conn, int id, Newsgroup &ng) {
+
 }

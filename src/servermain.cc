@@ -43,7 +43,7 @@ void serve_client(Server& server, NewsApp& app) {
     auto conn = server.waitForActivity();
     if (conn != nullptr) {
             try {
-                app.process_request(conn);
+                app.processRequest(conn);
             } catch (ConnectionClosedException&) {
                     server.deregisterConnection(conn);
                     cout << "Client closed connection" << endl;

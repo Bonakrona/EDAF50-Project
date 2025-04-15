@@ -16,17 +16,16 @@ class NewsApp {
 
         // facilitate commands via private methods, defined below
         // based on the protocol defined in "protocol.h"
-        void process_request(std::shared_ptr<Connection>& conn);
+        void processRequest(std::shared_ptr<Connection>& conn);
 
     private:
-    // TODO: change return values from 'bool' to 'int'? (for error codes)
-        vector<string> listGroups();
-        bool createGroup(const string name);
-        bool deleteGroup(int ngId);
+        void listGroups(std::shared_ptr<Connection>& conn);
+        void createGroup(std::shared_ptr<Connection>& conn, const string name);
+        void deleteGroup(std::shared_ptr<Connection>& conn, int ngId);
         
-        vector<string> listArticles(Newsgroup &ng);
-        bool createArticle(const string &title, const string &author, const string &txt, Newsgroup &ng);
-        bool deleteArticle(int id, Newsgroup &ng);
+        void listArticles(std::shared_ptr<Connection>& conn, Newsgroup &ng);
+        void createArticle(std::shared_ptr<Connection>& conn, const string &title, const string &author, const string &txt, Newsgroup &ng);
+        void deleteArticle(std::shared_ptr<Connection>& conn, int id, Newsgroup &ng);
 
         std::unique_ptr<Database> database; // obs: must be pointer or ref when abstract class
         MessageHandler messageHandler;
