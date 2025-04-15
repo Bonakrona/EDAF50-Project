@@ -8,6 +8,19 @@
 using std::string;
 using std::vector;
 
+// static cast wrapper, for readability
+int code(Protocol code) {
+    return static_cast<int>(code);
+}
+
+// check that server receives a 'COM_END' after a command, otherwise ProtocolViolationException
+void checkCommandEnd(std::shared_ptr<Connection>& conn, MessageHandler &mh) {
+    int com = mh.recvCode(conn);
+    if (com != code(Protocol::COM_END)) {
+        throw new ProtocolViolationException("No COM_END received after command code!");
+    }
+}
+
 NewsApp::NewsApp(std::unique_ptr<Database> database, MessageHandler messageHandler) : db(std::move(database)), mh(messageHandler) {}
 
 void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
@@ -71,19 +84,6 @@ void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
         } catch (ProtocolViolationException e) {
             // TODO: DISCONNECT CLIENT ?
             std::cerr << "Invalid command. Disconnecting client...\n";
-    }
-}
-
-// static cast wrapper, for readability
-int code(Protocol code) {
-    return static_cast<int>(code);
-}
-
-// check that server receives a 'COM_END' after a command, otherwise ProtocolViolationException
-void checkCommandEnd(std::shared_ptr<Connection>& conn, MessageHandler &mh) {
-    int com = mh.recvCode(conn);
-    if (com != code(Protocol::COM_END)) {
-        throw new ProtocolViolationException("No COM_END received after command code!");
     }
 }
 
