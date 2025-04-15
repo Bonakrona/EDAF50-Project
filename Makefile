@@ -9,6 +9,8 @@ SRC := src
 OBJ := obj
 BIN := bin
 
+### TARGETS
+## TEST DATABASE:
 # Output Executable Name
 TEST_DB = $(BIN)/TestDatabase
 
@@ -22,13 +24,31 @@ TEST_DB_SRCS := \
 TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
 
 # Default target to build the executable
-# all: 
 test_db: $(TEST_DB)
 
 # Rule for building the executable
 $(TEST_DB): $(TEST_DB_OBJS)
 	@mkdir -p $(BIN)
 	$(CXX) $(TEST_DB_OBJS) -o $(TEST_DB)
+
+## SERVER:
+SERVER = $(BIN)/server
+SERVER_SRCS = \
+	$(SRC)/connection.cc \
+	$(SRC)/server.cc \
+	$(SRC)/newsapp.cc \
+	$(SRC)/messageHandler.cc \
+	$(SRC)/article.cc \
+	$(SRC)/newsgroup.cc \
+	$(SRC)/inMemory.cc \
+	$(SRC)/servermain.cc
+SERVER_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_SRCS))
+
+server: $(SERVER)
+
+$(SERVER): $(SERVER_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $(SERVER_OBJS) -o $(SERVER)
 
 # Rule for creating object files
 $(OBJ)/%.o: $(SRC)/%.cc
