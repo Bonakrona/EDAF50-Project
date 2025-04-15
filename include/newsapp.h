@@ -15,7 +15,7 @@ class NewsApp {
         // initializes a Server on 'port' with Database 'db'
         // NewsApp(Server* serv, Database* db);
         // NewsApp(MessageHandler mh, Database* db);
-        NewsApp(Database* db, MessageHandler mh);
+        NewsApp(std::unique_ptr<Database> db, MessageHandler mh);
 
         void process_request(std::shared_ptr<Connection>& conn);
 
@@ -35,7 +35,7 @@ class NewsApp {
         bool delete_article();
         
     private:
-        Database* database; // obs: must be pointer or ref when abstract class
+        std::unique_ptr<Database> database; // obs: must be pointer or ref when abstract class
         MessageHandler messageHandler;
 
 };

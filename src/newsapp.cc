@@ -15,9 +15,7 @@
 //     database = db;
 // }
 
-NewsApp::NewsApp(Database* db, MessageHandler mh) {
-    database = db;
-    messageHandler = mh;
+NewsApp::NewsApp(std::unique_ptr<Database> db, MessageHandler mh) : database(std::move(db)), messageHandler(mh) {
 }
 
 int readNumber(const std::shared_ptr<Connection>& conn)
