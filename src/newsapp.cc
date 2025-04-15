@@ -54,7 +54,10 @@ void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
                 break;
             }
             case Protocol::COM_GET_ART: {
-
+                int ngId = mh.recvIntParameter(conn);
+                int artId = mh.recvIntParameter(conn);
+                checkCommandEnd(conn, mh);
+                getArticle(conn, ngId, artId);
                 break;
             }
             default:
@@ -166,6 +169,28 @@ void NewsApp::deleteArticle(std::shared_ptr<Connection>& conn, int artId, int ng
         mh.sendCode(conn, code(Protocol::ANS_END));
         return;
     }
+    
+    if (!db->removeNewsgroupsArticle(artId, optNewsgroup.value())) {
+        mh.sendCode(conn, code(Protocol::ANS_NAK));
+        mh.sendCode(conn, code(Protocol::ERR_ART_DOES_NOT_EXIST));
+    } else {
+        mh.sendCode(conn, code(Protocol::ANS_ACK));
+    }
+    
+    mh.sendCode(conn, code(Protocol::ANS_END));
+}
+
+void NewsApp::getArticle(std::shared_ptr<Connection>& conn, int ngId, int artId) {
+    mh.sendCode(conn, code(Protocol::ANS_GET_ART));
+
+    auto optNewsgroup = db->getNewsgroup(ngId);
+    if (!optNewsgroup.has_value()) {
+        mh.sendCode(conn, code(Protocol::ANS_NAK));
+        mh.sendCode(conn, code(Protocol::ERR_NG_DOES_NOT_EXIST));
+        mh.sendCode(conn, code(Protocol::ANS_END));
+        return;
+    }
+
     auto optArticle = db->getNewsgroupsArticle(artId, optNewsgroup.value());
     if (!optArticle.has_value()) {
         mh.sendCode(conn, code(Protocol::ANS_NAK));
@@ -173,7 +198,15 @@ void NewsApp::deleteArticle(std::shared_ptr<Connection>& conn, int artId, int ng
         mh.sendCode(conn, code(Protocol::ANS_END));
         return;
     }
+    
+    auto article = optArticle.value();
 
     mh.sendCode(conn, code(Protocol::ANS_ACK));
+    mh.sendStringParameter(conn, article.get_title());
+    mh.sendStringParameter(conn, article.get_author());
+    mh.sendStringParameter(conn, article.get_content());
     mh.sendCode(conn, code(Protocol::ANS_END));
 }
+
+
+
