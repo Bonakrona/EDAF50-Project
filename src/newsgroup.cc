@@ -3,9 +3,10 @@
 #include "article.h"
 #include <iostream>
 
-Newsgroup::Newsgroup(const std::string &n)
+Newsgroup::Newsgroup(const std::string &n, const unsigned long long i)
 {
     name = n;
+    id = i;
     nextArcticleID = 1;
 }
 
@@ -57,6 +58,11 @@ std::vector<Article> Newsgroup::listArticles() const
     }
     
     return res;
+}
+
+unsigned long long Newsgroup::get_id() const
+{
+    return id;
 }
 
 std::string Newsgroup::get_name() const

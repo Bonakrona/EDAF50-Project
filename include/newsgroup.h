@@ -14,7 +14,7 @@ class Newsgroup{
 public:
     //constructor
     Newsgroup() = default;
-    Newsgroup(const std::string& n);
+    Newsgroup(const std::string& n, const unsigned long long i);
     bool addArticle(const std::string& t, const std::string& a, const std::string& txt);
 
     std::optional<Article> getArticle(unsigned long long id) const;
@@ -23,6 +23,7 @@ public:
 
     std::vector<Article> listArticles() const;
 
+    unsigned long long get_id() const;
     std::string get_name() const;
 
     
@@ -31,6 +32,7 @@ private:
     std::string name;
     std::map<unsigned long long, Article> articles;
     std::unordered_set<std::string> articleTitles;
+    unsigned long long id;
     unsigned long long nextArcticleID; //technically maximum here
 };
 
