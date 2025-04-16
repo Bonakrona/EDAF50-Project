@@ -9,7 +9,7 @@ bool inMemory::addNewsgroup(const std::string n){
     if(newsgroupNames.find(n) != newsgroupNames.end()){
         return false;
     }else{
-        newsgroups[nextNewsgroupID] = Newsgroup(n);
+        newsgroups[nextNewsgroupID] = Newsgroup(n, nextNewsgroupID);
         newsgroupNames.insert(n);
         nextNewsgroupID++;
         return true;

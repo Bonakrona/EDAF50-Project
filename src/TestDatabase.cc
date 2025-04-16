@@ -15,7 +15,7 @@ void test_article() {
 }
 
 void test_newsgroup() {
-    Newsgroup group("Fun News");
+    Newsgroup group("Fun News", 1);
 
     assert(group.get_name() == "Fun News");
 
@@ -71,7 +71,7 @@ void test_database(){
     inMemory test;
 
     bool added1 = test.addNewsgroup("New News");
-    Newsgroup n1("New News");
+    Newsgroup n1("New News", 1);
     bool not_added = test.addNewsgroup("New News");
     bool added2 = test.addNewsgroup("Not News");
 
