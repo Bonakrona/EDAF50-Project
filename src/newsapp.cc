@@ -92,8 +92,7 @@ void NewsApp::listGroups(std::shared_ptr<Connection>& conn) {
     mh.sendCode(conn, code(Protocol::ANS_LIST_NG));
     mh.sendIntParameter(conn, groups.size());
     for (Newsgroup ng : groups) {
-        // string ngLine = f"id. newsgroup""
-        // TODO: SEND STRINGS AS "[ID]. [NEWSGROUP NAME]" ??
+        mh.sendIntParameter(conn, ng.get_id());
         mh.sendStringParameter(conn, ng.get_name());
     }
     mh.sendCode(conn, code(Protocol::ANS_END));
@@ -130,8 +129,7 @@ void NewsApp::listArticles(std::shared_ptr<Connection>& conn, int ngId) {
         auto articles = optNewsgroup.value().listArticles();
         mh.sendIntParameter(conn, articles.size());
         for (Article article : articles) {
-            // string articleLine = f"id. article""
-            // TODO: SEND STRINGS AS "[ID]. [ARTICLE TITLE]" ??
+            mh.sendIntParameter(conn, article.get_id());
             mh.sendStringParameter(conn, article.get_title());
         }
     } else {
