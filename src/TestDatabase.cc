@@ -22,17 +22,18 @@ void test_newsgroup() {
     bool added1 = group.addArticle("News1", "Max Mustermann", "These are the news.");
     assert(added1 == true);
 
-    Article a1("News1", "Max Mustermann", "These are the news.", 1);
     auto A = group.getArticle(1);
-    assert(A.has_value() && A->get_title() == a1.get_title());
+    assert(A.has_value() && A->get_title() == "News1");
     
     bool not_added = group.addArticle("News1", "Maria Mustermann", "These are more news!");
     assert(not_added == false); // has same title as previous article, should not be added
-
+    
     bool added2 = group.addArticle("News2", "Maria Mustermann", "These are more news!");
-    Article a2("News2", "Maria Mustermann", "These are more news!", 2);
     assert(added2 == true);
-
+    
+    Article a1("News1", "Max Mustermann", "These are the news.", 1);
+    Article a2("News2", "Maria Mustermann", "These are more news!", 2);
+    
     //before removal
     std::vector<Article> expected = {a1, a2};
     std::vector<Article> listed = group.listArticles();
@@ -71,7 +72,6 @@ void test_database(){
     inMemory test;
 
     bool added1 = test.addNewsgroup("New News");
-    Newsgroup n1("New News", 1);
     bool not_added = test.addNewsgroup("New News");
     bool added2 = test.addNewsgroup("Not News");
 
@@ -81,7 +81,7 @@ void test_database(){
 
     auto N = test.getNewsgroup(1);
     assert(N.has_value());
-    assert(N->get_name() == n1.get_name());
+    assert(N->get().get_name() == "New News");
     bool removed = test.removeNewsgroup(1);
     assert(removed == true);
     assert(test.getNewsgroup(1) == std::nullopt);
@@ -93,15 +93,15 @@ void test_database(){
 
     std::vector<Article> exampleArticleVector {art1, art2, art3};
     
-    bool addedA1 = test.addNewsgroupsArticle("News1", "Max Mustermann", "These are the news.", n1);
-    bool addedA2 = test.addNewsgroupsArticle("News2", "Anna Kristina", "Bla bla bla.", n1);
-    bool addedA3 = test.addNewsgroupsArticle("News3", "Jona Anhalte", "Important news.", n1);
+    bool addedA1 = test.addNewsgroupsArticle("News1", "Max Mustermann", "These are the news.", N.value());
+    bool addedA2 = test.addNewsgroupsArticle("News2", "Anna Kristina", "Bla bla bla.", N.value());
+    bool addedA3 = test.addNewsgroupsArticle("News3", "Jona Anhalte", "Important news.", N.value());
     assert(addedA1 == true);
     assert(addedA2 == true);
     assert(addedA3 == true);
     
     //befor removal
-    std::vector<Article> listedNewsgroupArticles = test.listNewsgroupsArticles(n1);
+    std::vector<Article> listedNewsgroupArticles = test.listNewsgroupsArticles(N.value());
     
     assert(listedNewsgroupArticles.size() == exampleArticleVector.size());
 
@@ -113,18 +113,18 @@ void test_database(){
     }
 
     // removal
-    bool removedNewsgroupArticle = test.removeNewsgroupsArticle(1, n1);
+    bool removedNewsgroupArticle = test.removeNewsgroupsArticle(1, N.value());
     assert(removedNewsgroupArticle == true);
 
-    auto retrievedNewsgroupArticle1 = test.getNewsgroupsArticle(1, n1);
-    auto retrievedNewsgroupArticle2 = test.getNewsgroupsArticle(2, n1);
+    auto retrievedNewsgroupArticle1 = test.getNewsgroupsArticle(1, N.value());
+    auto retrievedNewsgroupArticle2 = test.getNewsgroupsArticle(2, N.value());
 
     assert(retrievedNewsgroupArticle1 == std::nullopt);
     assert(retrievedNewsgroupArticle2.has_value());
 
     //after removal
     std::vector<Article> exampleArticleVector2 {art2, art3};
-    std::vector<Article> listedNewsgroupArticles2 = test.listNewsgroupsArticles(n1);
+    std::vector<Article> listedNewsgroupArticles2 = test.listNewsgroupsArticles(N.value());
     
     assert(listedNewsgroupArticles2.size() == exampleArticleVector2.size());
 

@@ -17,7 +17,7 @@ public:
     std::vector<Newsgroup> listNewsgroups();
     bool addNewsgroup(const string n);
     bool removeNewsgroup(unsigned long long id);
-    std::optional<Newsgroup> getNewsgroup(unsigned long long id) const;
+    std::optional<std::reference_wrapper<Newsgroup>> getNewsgroup(unsigned long long id);
 
     std::vector<Article> listNewsgroupsArticles(Newsgroup &ng);
     bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng);
