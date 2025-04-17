@@ -16,10 +16,10 @@ bool inMemory::addNewsgroup(const std::string n){
     }
 };
 
-std::optional<Newsgroup> inMemory::getNewsgroup(unsigned long long id) const{
+std::optional<std::reference_wrapper<Newsgroup>> inMemory::getNewsgroup(unsigned long long id) {
     auto it = newsgroups.find(id);
     if(it != newsgroups.end()){
-        return it->second;
+        return std::ref(it->second);
     }else{
         return std::nullopt;
     }

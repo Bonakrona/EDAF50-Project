@@ -16,7 +16,7 @@ public:
     virtual std::vector<Newsgroup> listNewsgroups() = 0;
     virtual bool addNewsgroup(const string n) = 0;
     virtual bool removeNewsgroup(unsigned long long id) = 0;
-    virtual std::optional<Newsgroup> getNewsgroup(unsigned long long id) const = 0;
+    virtual std::optional<std::reference_wrapper<Newsgroup>> getNewsgroup(unsigned long long id) = 0;
 
     virtual std::vector<Article> listNewsgroupsArticles(Newsgroup &ng) = 0;
     virtual bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng) = 0;
