@@ -32,7 +32,7 @@ void ClientMessenger::listNewsgroups(const std::shared_ptr<Connection>& conn) co
 
     int numberOfng = mh.recvIntParameter(conn);
     cout << "There are " << numberOfng << " newsgroups: \n";
-    for (size_t i = 0; i < numberOfng; ++i) {
+    for (int i = 0; i < numberOfng; ++i) {
         int ngID = mh.recvIntParameter(conn);
         string ngName = mh.recvStringParameter(conn);
 
@@ -143,7 +143,7 @@ void ClientMessenger::listArticles(const std::shared_ptr<Connection>& conn) cons
     if (ack == static_cast<int>(Protocol::ANS_ACK)) {
         int numberOfArticles = mh.recvIntParameter(conn);
         cout << "There are " << numberOfArticles << " articles in newsgroup with ID: "<< ngID << ": \n";
-        for (size_t i = 0; i < numberOfArticles; ++i) {
+        for (int i = 0; i < numberOfArticles; ++i) {
             int articleID = mh.recvIntParameter(conn);
             string articleName = mh.recvStringParameter(conn);
 
@@ -169,33 +169,29 @@ void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) con
     // Input newsgroup Id and article data
     string idTpye = "newsgroup";
     int ngID = inputID("newsgroup");
-    //cout << ngID << endl;
 
     string title = "";
     cout << "Enter the title of the article:\n";
     getline(cin >> std::ws,title);
-    //cout << title << endl;
 
     cout << "Enter the article's author:\n";
     string author = "";
     getline(cin >> std::ws,author);
-    //cout << author << endl;
 
     cout << "Enter article text. Mutiple lines can be entered, terminate the text by writing \"#EXIT#\" on an empty line.\n";
     std::stringstream fullText;
     string text = "";
     getline(cin >> std::ws,text);
     while (true){
-        if (!text.compare("#EXIT#")) {
+        if (text.compare("#EXIT#") == 0) {
             break;
+        } else {
+            fullText << text << "\n";
+            getline(cin >> std::ws,text);
         }
-        getline(cin >> std::ws,text);
-        //cout << text << endl;
-        fullText << text << "\n";
 	}
 
     // Send message
-    cout << "sending msg"<< endl;
     mh.sendCode(conn,static_cast<int>(Protocol::COM_CREATE_ART));
     mh.sendIntParameter(conn,ngID);
     mh.sendStringParameter(conn,title);
@@ -206,7 +202,7 @@ void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) con
     // Receive response
     int rStartCode = mh.recvCode(conn);
     
-    /*if (rStartCode != static_cast<int>(Protocol::ANS_CREATE_NG)) {
+    /*if (rStartCode != static_cast<int>(Protocol::uyaedwfuy)) {
         throw ProtocolViolationException("Incorrect starting code when using createNewsgroup()");
     }
     */
@@ -226,11 +222,95 @@ void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) con
 }
 
 void ClientMessenger::deleteArticle(const std::shared_ptr<Connection>& conn) const {
-    cout << "\n\n deleteArticle is incomplete \n\n";
+    // Input newsgroup and article IDs
+    int ngID = inputID("newsgroup");
+
+    int articleID = inputID("article");
+
+    // Send message
+    mh.sendCode(conn,static_cast<int>(Protocol::COM_DELETE_ART));
+    mh.sendIntParameter(conn,ngID);
+    mh.sendIntParameter(conn,articleID);
+    mh.sendCode(conn,static_cast<int>(Protocol::COM_END));
+
+    // Receive response
+    int rStartCode = mh.recvCode(conn);
+    
+    /*if (rStartCode != static_cast<int>(Protocol::argag)) {
+        throw ProtocolViolationException("Incorrect starting code when using createNewsgroup()");
+    }
+    */
+
+    int ack = mh.recvCode(conn);
+
+    if (ack == static_cast<int>(Protocol::ANS_ACK)) {
+        cout << "Article with ID: " << articleID << " was deleted from newsgroup with ID: " << ngID << ".\n";
+    } else if (ack == static_cast<int>(Protocol::ANS_NAK)) {
+        int err = mh.recvCode(conn);
+        if (err == static_cast<int>(Protocol::ERR_ART_DOES_NOT_EXIST)) {
+            cout << "No article with ID: " << articleID << " exists in newsgroup with ID: " << ngID << ".\n";
+        } if (err == static_cast<int>(Protocol::ERR_NG_DOES_NOT_EXIST)) {
+            cout << "Newsgroup with ID " << ngID << " does not exist.\n";
+        }
+        cout << "No article was deleated.\n";
+    }
+
+    int rTerminateCode = mh.recvCode(conn);
+    /*
+    if (rcode != static_cast<int>(Protocol::ANS_END)) {
+        throw ProtocolViolationException("Incorrect terminating code when using listNewsgroups()");
+    }
+    */
+
+    //cout << "\n\n deleteArticle is incomplete \n\n";
 }
 
 void ClientMessenger::getArticle(const std::shared_ptr<Connection>& conn) const {
+    // Input newsgroup and article IDs
+    int ngID = inputID("newsgroup");
+
+    int articleID = inputID("article");
+
+    // Send message
+    mh.sendCode(conn,static_cast<int>(Protocol::COM_GET_ART));
+    mh.sendIntParameter(conn,ngID);
+    mh.sendIntParameter(conn,articleID);
+    mh.sendCode(conn,static_cast<int>(Protocol::COM_END));
     cout << "\n\n getArticle is incomplete \n\n";
+
+    // Receive response
+    int rStartCode = mh.recvCode(conn);
+    
+    /*if (rStartCode != static_cast<int>(Protocol::argag)) {
+        throw ProtocolViolationException("Incorrect starting code when using createNewsgroup()");
+    }
+    */
+
+    int ack = mh.recvCode(conn);
+
+    if (ack == static_cast<int>(Protocol::ANS_ACK)) {
+        string title = mh.recvStringParameter(conn);
+        string author = mh.recvStringParameter(conn);
+        string text = mh.recvStringParameter(conn);
+
+        cout << "Article with ID: " << articleID << " of newsgroup with ID: " << ngID <<" is:\n\n";
+        cout << "Title: \"" << title << "\", by \"" << author << "\",\n\n";
+        cout << text;
+
+    } else if (ack == static_cast<int>(Protocol::ANS_NAK)) {
+        int err = mh.recvCode(conn);
+        if (err == static_cast<int>(Protocol::ERR_ART_DOES_NOT_EXIST)) {
+            cout << "No article with ID: " << articleID << " exists in newsgroup with ID: " << ngID << ".\n";
+        } if (err == static_cast<int>(Protocol::ERR_NG_DOES_NOT_EXIST)) {
+            cout << "Newsgroup with ID " << ngID << " does not exist.\n";
+        }
+    }
+    int rTerminateCode = mh.recvCode(conn);
+    /*
+    if (rcode != static_cast<int>(Protocol::ANS_END)) {
+        throw ProtocolViolationException("Incorrect terminating code when using listNewsgroups()");
+    }
+    */
 }
 /*
 string ClientMessenger::inputStringWithoutSpaces(string& type) const {
