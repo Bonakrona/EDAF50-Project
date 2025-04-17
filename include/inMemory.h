@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "article.h"
 #include "newsgroup.h"
 #include "database.h"
@@ -25,7 +26,7 @@ public:
     std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const;
 
 private:
-    std::map<unsigned long long, Newsgroup> newsgroups;
+    std::unordered_map<unsigned long long, Newsgroup> newsgroups;
     std::unordered_set<std::string> newsgroupNames;
     unsigned long long nextNewsgroupID; // technically maximum here
 };
