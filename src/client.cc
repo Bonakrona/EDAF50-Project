@@ -9,7 +9,8 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
-#include <set>
+#include <vector>
+#include <algorithm>
 
 using std::string;
 using std::cin;
@@ -17,7 +18,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-std::set<std::string> commands {
+std::vector<std::string> commands {
     "list_newsgroups",
     "create_newsgroup",
     "delete_newsgroup",
@@ -25,9 +26,10 @@ std::set<std::string> commands {
     "create_article",
     "delete_article",
     "get_article",
+    "exit"
 };
 
-Connection setupConnection(int argc, char* argv[]) {
+std::shared_ptr<Connection> setupConnection(int argc, char* argv[]) {
 
     if (argc != 3) {
         cerr << "Usage: client host-name port-number" << endl;
@@ -42,8 +44,8 @@ Connection setupConnection(int argc, char* argv[]) {
         exit(2);
     }
 
-    Connection conn(argv[1], port);
-    if (!conn.isConnected()) {
+    std::shared_ptr<Connection> conn = std::make_shared<Connection>(argv[1], port);
+    if (!(*conn).isConnected()) {
         cerr << "Connection attempt failed." << endl;
         exit(3);
     }
@@ -65,7 +67,7 @@ string inputCommand() {
     cout << "Select a command: \n\n";
 
     while (cin >> input){ 
-		if (commands.find(input) != commands.end()) {
+		if (std::find(commands.begin(), commands.end(), input) != commands.end()) {
             break;
         }
         cout << "Incorrect command. The available commands are: \n\n";
@@ -76,27 +78,11 @@ string inputCommand() {
 	}
 
     return input;
-
-    /*
-	while (cin >> input){ // Maybe we should coose another word to terminate reading.
-		if (!input.compare("&exit")) {
-            break;
-        }
-        totalInput << input << "\n";
-
-	}
-
-    cout << endl << totalInput.str() << endl;
-
-	return totalInput.str();
-    */
-
 }
 
-int app(const Connection& conn) {
+int app(const std::shared_ptr<Connection>& conn, const ClientMessenger cm) {
 
-    ClientMessenger cm{};
-
+    cout << "\n\n-----------------------------------------------------------------------\n\n";
     string command = inputCommand();
     
     try {
@@ -114,6 +100,9 @@ int app(const Connection& conn) {
             cm.deleteArticle(conn);
         } else if (command == "get_article") {
             cm.getArticle(conn);
+        } else if (command == "exit") {
+            cout << "Exiting. Thank you for using the client!\n";
+            return(0);
         } else {
             cerr << "\n\n\n Incorrect command was accepted. Hopefully you never read this, check that inputCommand() works correctly.";
             exit(3);
@@ -123,35 +112,25 @@ int app(const Connection& conn) {
         exit(3);
     }
 
-    /*
-    try {
-        msg.sendStringParameter(command);
-        string reply = msg.recvStringParameter();
-    } catch (ProtocolViolationException) {
-        cout << "\n\n Server is still not done. \n\n";
-    }
-    
-    int nbr;
-    while (cin >> nbr) {
-        try {
-                cout << nbr << " is ...";
-                msg.sendInt(nbr);
-                string reply = msg.recvStringParameter();
-                cout << " " << reply << endl;
-                cout << "Type another number: ";
-        } catch (ConnectionClosedException&) {
-                cout << " no reply from server. Exiting." << endl;
-                return 1;
+    cout << "\nContinue operation? (y,n)\n";
+    string exit_command = "";
+    getline(cin >> std::ws,exit_command);
+    while (true) {
+        if (exit_command == "n") {
+            cout << "Exiting. Thank you for using the client!\n";
+            return(0);
+        } else if (exit_command == "y") {
+            return 1;
+        } else {
+            cout << "Continue operation? (y,n)\n";
+            getline(cin >> std::ws,exit_command);
         }
     }
-    */
-    return 0;
 }
 
 int main(int argc, char* argv[]) {
 
-    Connection conn = setupConnection(argc, argv);
-    while (app(conn)){}
-    
-    return app(conn);
+    std::shared_ptr<Connection> conn = setupConnection(argc, argv);
+    ClientMessenger cm;
+    while (app(conn,cm)){}
 }

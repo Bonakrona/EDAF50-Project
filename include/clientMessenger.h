@@ -11,22 +11,24 @@ class ClientMessenger {
         /* Creates the client messenger. */
         ClientMessenger();
 
-        void listNewsgroups(const Connection& conn) const;
+        void listNewsgroups(const std::shared_ptr<Connection>& conn) const;
 
-        void createNewsgroup(const Connection& conn) const;
+        void createNewsgroup(const std::shared_ptr<Connection>& conn) const;
 
-        void deleteNewsgroup(const Connection& conn) const;
+        void deleteNewsgroup(const std::shared_ptr<Connection>& conn) const;
 
-        void listArticles(const Connection& conn) const;
+        void listArticles(const std::shared_ptr<Connection>& conn) const;
 
-        void createArticle(const Connection& conn) const;
+        void createArticle(const std::shared_ptr<Connection>& conn) const;
         
-        void deleteArticle(const Connection& conn) const;
+        void deleteArticle(const std::shared_ptr<Connection>& conn) const;
 
-        void getArticle(const Connection& conn) const;
+        void getArticle(const std::shared_ptr<Connection>& conn) const;
         
     private:
-        MessageHandler msg;
+        MessageHandler mh;
+
+        //string inputStringWithoutSpaces(std::string& type) const;
 
         int inputID(const std::string& IDtype) const;
 };
