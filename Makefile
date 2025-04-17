@@ -50,6 +50,23 @@ server: $(SERVER)
 
 $(eval $(call build_executable,$(SERVER),$(SERVER_OBJS)))
 
+## CLIENT:
+CLIENT = $(BIN)/client
+CLIENT_SRCS = \
+	$(SRC)/connection.cc \
+	$(SRC)/messageHandler.cc \
+	$(SRC)/clientMessenger.cc \
+	$(SRC)/client.cc
+CLIENT_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(CLIENT_SRCS))
+
+client: $(CLIENT)
+
+$(eval $(call build_executable,$(CLIENT),$(CLIENT_OBJS)))
+
+## ALL:
+all: $(SERVER) $(CLIENT)
+
+
 # Rule for creating object files
 $(OBJ)/%.o: $(SRC)/%.cc
 	@mkdir -p $(OBJ)
