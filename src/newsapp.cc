@@ -126,7 +126,7 @@ void NewsApp::listArticles(std::shared_ptr<Connection>& conn, int ngId) {
 
     if (optNewsgroup.has_value()) {
         mh.sendCode(conn, code(Protocol::ANS_ACK));
-        auto articles = optNewsgroup.value().listArticles();
+        auto articles = optNewsgroup.value().get().listArticles();
         mh.sendIntParameter(conn, articles.size());
         for (Article article : articles) {
             mh.sendIntParameter(conn, article.get_id());
