@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <functional>
+
 #include "article.h"
 #include "newsgroup.h"
 
