@@ -1,12 +1,12 @@
 #ifndef NEWSGROUP_H
 #define NEWSGROUP_H
 
-#include<iostream>
-#include<vector>
-#include<string>
-#include<map>
-#include<unordered_set>
-#include<optional>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <unordered_set>
+#include <optional>
 #include "article.h"
 
 class Newsgroup{
