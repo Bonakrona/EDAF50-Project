@@ -30,6 +30,7 @@ void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
         switch (code) {
             case Protocol::COM_LIST_NG: {
                 listGroups(conn);
+                checkCommandEnd(conn, mh);
                 break;
             }
             case Protocol::COM_CREATE_NG: {
