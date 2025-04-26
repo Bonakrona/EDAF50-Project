@@ -32,6 +32,10 @@ private:
     std::unordered_set<std::string> newsgroupNames;
     unsigned long long nextNewsgroupID; // technically maximum here
     fs::path root = fs::current_path() / "Database";
-};
+    std::map<unsigned long long, fs::path> newsgroupPaths;
 
+    std::vector<fs::path> findDirectories(fs::path currentPath);
+    std::vector<fs::path> findFiles(fs::path currentPath);
+
+};
 #endif
