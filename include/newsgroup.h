@@ -30,13 +30,13 @@ public:
     std::string get_name() const;
 
     
+    unsigned long long nextArcticleID; //technically maximum here
 
 private:
     std::string name;
     std::map<unsigned long long, Article> articles;
     std::unordered_set<std::string> articleTitles;
     unsigned long long id;
-    unsigned long long nextArcticleID; //technically maximum here
 };
 
 #endif

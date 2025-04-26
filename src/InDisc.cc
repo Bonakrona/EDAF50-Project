@@ -94,6 +94,9 @@ std::vector<fs::path> findFiles(fs::path currentPath)
 
 bool InDisc::addNewsgroup(const std::string n)
 {
+    fs::path groupDir = root / (std::to_string(nextNewsgroupID) + "_" + n);
+    fs::create_directories(groupDir);
+
     if (newsgroupNames.find(n) != newsgroupNames.end())
     {
         return false;
@@ -102,9 +105,25 @@ bool InDisc::addNewsgroup(const std::string n)
     {
         newsgroups[nextNewsgroupID] = Newsgroup(n, nextNewsgroupID);
         newsgroupNames.insert(n);
+        newsgroupPaths[nextNewsgroupID] = groupDir;
         nextNewsgroupID++;
         return true;
     }
+    
+    std::ofstream newsgroupMetadata(groupDir / "metadata.txt");
+    if (newsgroupMetadata.is_open())
+    {
+        newsgroupMetadata << "1";
+        newsgroupMetadata.close();
+    }
+    
+    std::ofstream dbMetadataFile(root / "metadata.txt");
+    if (dbMetadataFile.is_open())
+    {
+        dbMetadataFile << nextNewsgroupID;
+        dbMetadataFile.close();
+    }
+    return true;
 };
 
 std::optional<std::reference_wrapper<Newsgroup>> InDisc::getNewsgroup(unsigned long long id)
@@ -127,6 +146,12 @@ bool InDisc::removeNewsgroup(unsigned long long id)
     {
         newsgroupNames.erase(it->second.get_name());
         newsgroups.erase(it);
+
+        fs::path articlePath = newsgroupPaths[id];
+        fs::remove(articlePath);
+        
+        newsgroupPaths.erase(id);
+
         return true;
     }
     return false;
@@ -149,16 +174,32 @@ std::vector<Article> InDisc::listNewsgroupsArticles(Newsgroup &ng)
 
 bool InDisc::addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng)
 {
+    fs::path newsgroupPath = newsgroupPaths[ng.get_id()];
+    std::ofstream metadataFile(newsgroupPath / "metadata.txt");
+    unsigned long long tempID = ng.nextArcticleID + 1;
+    if (metadataFile.is_open())
+    {
+        metadataFile << tempID;
+        metadataFile.close();
+
+        std::ofstream articleFile(newsgroupPath / "article" / (std::to_string(tempID) + ".txt"));
+        if (articleFile.is_open())
+        {
+            articleFile << tempID << '\n' << t << '\n' << a << '\n' << txt;
+            articleFile.close();
+        }
+    }
     return ng.addArticle(t, a, txt);
 }
 
 bool InDisc::removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng)
 {
+    fs::path articlePath = newsgroupPaths[ng.get_id()] / "article" / (std::to_string(id) + ".txt");
+    fs::remove(articlePath);
     return ng.removeArticle(id);
 }
 
 std::optional<Article> InDisc::getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const
 {
     return ng.getArticle(id);
-}
 }
