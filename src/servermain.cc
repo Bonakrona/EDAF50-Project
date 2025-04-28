@@ -52,18 +52,11 @@ void serve_client(Server& server, NewsApp& app) {
         } catch (const ConnectionClosedException&) {
             cout << "Client closed connection" << endl;
             server.deregisterConnection(conn);
-        } catch (const std::exception& e) {
-            std::cerr << "Uknown exception caught, closing server..." << std::endl;
-            std::cerr << e.what() << std::endl;
-            return;
-        } catch (...) {
-            std::cerr << "UKNOWN ERROR, closing server..." << std::endl;
-           return;
         }
     } else {
-            conn = std::make_shared<Connection>();
-            server.registerConnection(conn);
-            cout << "New client connects" << endl;
+        conn = std::make_shared<Connection>();
+        server.registerConnection(conn);
+        cout << "New client connects" << endl;
     }
 }
 
@@ -88,7 +81,16 @@ int main(int argc, char* argv[]) {
     // OBS: Eventually switch to another condition?
     // (error handling, for example, etc..?, or just 'break')
     while (true) {
-        serve_client(server, app);
+        try {
+            serve_client(server, app);
+        } catch (const std::exception& e) {
+            std::cerr << "Uknown exception caught, closing server..." << std::endl;
+            std::cerr << e.what() << std::endl;
+            return 1;
+        } catch (...) {
+            std::cerr << "UKNOWN ERROR, closing server..." << std::endl;
+            return 1;
+        }
     }
 
     return 0;
