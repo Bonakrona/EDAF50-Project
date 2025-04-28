@@ -1,61 +1,34 @@
-# CPP Project, Communication Classes
+# CPP Project
 
-- The clientserver directory contains the communication classes Connection and Server,
-  and the auxiliary classes ConnectionClosedException and Protocol. These
-  classes are defined in the project description, sections 5.2 and 6.
-- `make` makes the library libclientserver.a and recursively builds the
-  example programs in `example`.
-- The subdirectory `example` contains the example programs `myclient` and `myserver`,
-  as defined in the project description, section 5.3.
+News-server and client implementation of C++ group project for LTH course `EDAF50`. Members:
+- Victor Truong ()
+- ...
+- ...
+- ...
 
 ## building with make
 
-`make` in the clientserver directory builds the library (in
-lib/libclientserver.a) and the example programs
-myclient and myserver (in the example directory).
+Running `make` (equivalent to `make all`) in the main directory builds the the server and client into executables that can be found in `bin/` 
+- `make server` - builds the server executable
+- `make client` - builds the client executable
+- `make test_db` - unit tests for database
+- `make error_client` - faulty client for testing protocol violations
 
-For cleaning, use `make clean` and `make distclean`.
+For cleaning, use `make clean`.
 
-## running the examples
+## running the application
 
-To run the examples, open two terminal windows.
+First, open two terminal windows, one for the server and one for the client.
 
-In the first one, start the server with `myserver <port>`, e.g.,
+In the first one, start the server with `bin/myserver <port>`, e.g.,
 
 ```
-example/myserver 7777
+bin/server 1337
 ```
 
 In the other one, start the client with `myclient <server> <port>`, e.g.,
 
 ```
-example/myclient localhost 7777
+bin/client localhost 1337
 ```
-
-## building with cmake
-There is also a CMakeLists.txt, which builds the library and the
-example client and server.
-
-Typical usage:
-
-```
-mkdir build
-cd build
-cmake ..
-make
-```
-
-The CMakeLists.txt also includes support for installing the
-example binaries. Example usage installing under /tmp:
-
-```
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=/tmp ..
-make
-make install
-```
-which will install the two example programs in /tmp/bin.
-(if you don't set `CMAKE_INSTALL_PREFIX`, make install will use the
-default install prefix, `/usr/local`)
-
+- Multiple client instances can be active at the same time, open other terminal windows for more clients and run the same command for each.
