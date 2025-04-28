@@ -6,12 +6,10 @@
 /* An exception to be cast when protocol is voilated. 
  * Violation specifications are specified in msg*/
 struct ProtocolViolationException {
-    ProtocolViolationException(const std::string& msg) {
-        std::string m = msg;
-    };
+    std::string msg;
 
-    ProtocolViolationException() {
-        std::string m = "No message.";
-    }
+    ProtocolViolationException(const std::string& msg) : msg(msg) {}
+
+    ProtocolViolationException() : msg("No message.") {}
 };
 #endif

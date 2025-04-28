@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
+#include "protocolviolationexception.h"
 #include "server.h"
 #include "newsapp.h"
 #include "inMemory.h"
@@ -18,7 +19,7 @@ using std::endl;
 
 Server init(int argc, char* argv[]) {
         if (argc != 2) {
-                cerr << "Usage: myserver port-number" << endl;
+                cerr << "Usage: server port-number" << endl;
                 exit(1);
         }
 
@@ -42,16 +43,20 @@ Server init(int argc, char* argv[]) {
 void serve_client(Server& server, NewsApp& app) {
     auto conn = server.waitForActivity();
     if (conn != nullptr) {
-            try {
-                app.processRequest(conn);
-            } catch (ConnectionClosedException&) {
-                    server.deregisterConnection(conn);
-                    cout << "Client closed connection" << endl;
-            }
+        try {
+            app.processRequest(conn);
+        } catch (const ProtocolViolationException& e) {
+            std::cerr << "ERROR " << e.msg << std::endl;
+            std::cout << "Inappropriate behaviour, disconnecting client..." << std::endl;
+            server.deregisterConnection(conn);
+        } catch (const ConnectionClosedException&) {
+            cout << "Client closed connection" << endl;
+            server.deregisterConnection(conn);
+        }
     } else {
-            conn = std::make_shared<Connection>();
-            server.registerConnection(conn);
-            cout << "New client connects" << endl;
+        conn = std::make_shared<Connection>();
+        server.registerConnection(conn);
+        cout << "New client connects" << endl;
     }
 }
 
@@ -76,7 +81,16 @@ int main(int argc, char* argv[]) {
     // OBS: Eventually switch to another condition?
     // (error handling, for example, etc..?, or just 'break')
     while (true) {
-        serve_client(server, app);
+        try {
+            serve_client(server, app);
+        } catch (const std::exception& e) {
+            std::cerr << "Uknown exception caught, closing server..." << std::endl;
+            std::cerr << e.what() << std::endl;
+            return 1;
+        } catch (...) {
+            std::cerr << "UKNOWN ERROR, closing server..." << std::endl;
+            return 1;
+        }
     }
 
     return 0;

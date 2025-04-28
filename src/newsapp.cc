@@ -2,6 +2,7 @@
 #include "newsapp.h"
 #include "protocol.h"
 #include "protocolviolationexception.h"
+#include "connectionclosedexception.h"
 
 #include <iostream>
 
@@ -17,7 +18,7 @@ int code(Protocol code) {
 void checkCommandEnd(std::shared_ptr<Connection>& conn, MessageHandler &mh) {
     int com = mh.recvCode(conn);
     if (com != code(Protocol::COM_END)) {
-        throw new ProtocolViolationException("No COM_END received after command code!");
+        throw ProtocolViolationException("No Protocol::COM_END received");
     }
 }
 
@@ -26,65 +27,57 @@ NewsApp::NewsApp(std::unique_ptr<Database> database, MessageHandler messageHandl
 void NewsApp::processRequest(std::shared_ptr<Connection>& conn) {
 
     Protocol code = static_cast<Protocol>(mh.recvCode(conn));
-    try {
-        switch (code) {
-            case Protocol::COM_LIST_NG: {
-                checkCommandEnd(conn, mh);
-                listGroups(conn);
-                break;
-            }
-            case Protocol::COM_CREATE_NG: {
-                string name = mh.recvStringParameter(conn);
-                checkCommandEnd(conn, mh);
-                createGroup(conn, name);
-                break;
-            }
-            case Protocol::COM_DELETE_NG: {
-                int id = mh.recvIntParameter(conn);
-                checkCommandEnd(conn, mh);
-                deleteGroup(conn, id);
-                break;
-            }
-            case Protocol::COM_LIST_ART: {
-                int ngId = mh.recvIntParameter(conn);
-                checkCommandEnd(conn, mh);
-                listArticles(conn, ngId);
-                break;
-            }
-            case Protocol::COM_CREATE_ART: {
-                int ngId = mh.recvIntParameter(conn);
-                string title = mh.recvStringParameter(conn);
-                string author = mh.recvStringParameter(conn);
-                string text = mh.recvStringParameter(conn);
-                checkCommandEnd(conn, mh);
-                createArticle(conn, title, author, text, ngId);
-                break;
-            }
-            case Protocol::COM_DELETE_ART: {
-                int ngId = mh.recvIntParameter(conn);
-                int artId = mh.recvIntParameter(conn);
-                checkCommandEnd(conn, mh);
-                deleteArticle(conn, artId, ngId);
-                break;
-            }
-            case Protocol::COM_GET_ART: {
-                int ngId = mh.recvIntParameter(conn);
-                int artId = mh.recvIntParameter(conn);
-                checkCommandEnd(conn, mh);
-                getArticle(conn, ngId, artId);
-                break;
-            }
-            default:
-                // TODO
-                // UNDEFINED CODE -> DISCONNECT CLIENT
-                // conn->~Connection() <- ??
-                // throw new ProtocolViolationException("Invalid command. Disconnecting client...")
-                break;
-            }
-            
-        } catch (ProtocolViolationException e) {
-            // TODO: DISCONNECT CLIENT ?
-            std::cerr << "Invalid command. Disconnecting client...\n";
+    switch (code) {
+        case Protocol::COM_LIST_NG: {
+            checkCommandEnd(conn, mh);
+            listGroups(conn);
+            break;
+        }
+        case Protocol::COM_CREATE_NG: {
+            string name = mh.recvStringParameter(conn);
+            checkCommandEnd(conn, mh);
+            createGroup(conn, name);
+            break;
+        }
+        case Protocol::COM_DELETE_NG: {
+            int id = mh.recvIntParameter(conn);
+            checkCommandEnd(conn, mh);
+            deleteGroup(conn, id);
+            break;
+        }
+        case Protocol::COM_LIST_ART: {
+            int ngId = mh.recvIntParameter(conn);
+            checkCommandEnd(conn, mh);
+            listArticles(conn, ngId);
+            break;
+        }
+        case Protocol::COM_CREATE_ART: {
+            int ngId = mh.recvIntParameter(conn);
+            string title = mh.recvStringParameter(conn);
+            string author = mh.recvStringParameter(conn);
+            string text = mh.recvStringParameter(conn);
+            checkCommandEnd(conn, mh);
+            createArticle(conn, title, author, text, ngId);
+            break;
+        }
+        case Protocol::COM_DELETE_ART: {
+            int ngId = mh.recvIntParameter(conn);
+            int artId = mh.recvIntParameter(conn);
+            checkCommandEnd(conn, mh);
+            deleteArticle(conn, artId, ngId);
+            break;
+        }
+        case Protocol::COM_GET_ART: {
+            int ngId = mh.recvIntParameter(conn);
+            int artId = mh.recvIntParameter(conn);
+            checkCommandEnd(conn, mh);
+            getArticle(conn, ngId, artId);
+            break;
+        }
+        default: {
+            string msg = "Receive command code: UNKOWN commandbyte " + std::to_string(static_cast<int>(code));
+            throw ProtocolViolationException(msg);
+        }
     }
 }
 
