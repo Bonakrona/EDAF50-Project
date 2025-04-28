@@ -10,6 +10,14 @@ Newsgroup::Newsgroup(const std::string &n, const unsigned long long i)
     nextArcticleID = 1;
 }
 
+Newsgroup::Newsgroup(const std::string &n, const unsigned long long i, const unsigned long long nextID)
+{
+    name = n;
+    id = i;
+    nextArcticleID = nextID;
+}
+
+
 bool Newsgroup::addArticle(const std::string &t, const std::string &a, const std::string &txt)
 {
     if(articleTitles.find(t) != articleTitles.end()){
@@ -19,6 +27,18 @@ bool Newsgroup::addArticle(const std::string &t, const std::string &a, const std
         articleTitles.insert(t);
         //std::cout << "Your article has been created with the ID:" << nextArcticleID << "\n";
         nextArcticleID++;
+        return true;
+    }
+};
+
+bool Newsgroup::addArticle(const std::string &t, const std::string &a, const std::string &txt, unsigned long long articleID)
+{
+    if(articleTitles.find(t) != articleTitles.end()){
+        return false;
+    }else{
+        articles[articleID] = Article(t, a, txt, articleID);
+        articleTitles.insert(t);
+        //std::cout << "Your article has been created with the ID:" << nextArcticleID << "\n";
         return true;
     }
 };
