@@ -16,6 +16,10 @@ $1: $2
 	@mkdir -p $(BIN)
 	$(CXX) $2 -o $1
 endef
+
+## ALL:
+all: server client
+
 ## TEST DATABASE:
 # Output Executable Name
 TEST_DB = $(BIN)/TestDatabase
@@ -59,13 +63,21 @@ CLIENT_SRCS = \
 	$(SRC)/client.cc
 CLIENT_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(CLIENT_SRCS))
 
+
 client: $(CLIENT)
 
 $(eval $(call build_executable,$(CLIENT),$(CLIENT_OBJS)))
 
-## ALL:
-all: $(SERVER) $(CLIENT)
+ERR_CLIENT = $(BIN)/error_client
+ERR_CLIENT_SRCS = \
+	$(SRC)/connection.cc \
+	$(SRC)/messageHandler.cc \
+	$(SRC)/error_client.cc
+ERR_CLIENT_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(ERR_CLIENT_SRCS))
 
+error_client: $(ERR_CLIENT)
+
+$(eval $(call build_executable,$(ERR_CLIENT),$(ERR_CLIENT_OBJS)))
 
 # Rule for creating object files
 $(OBJ)/%.o: $(SRC)/%.cc
@@ -77,4 +89,4 @@ clean:
 	rm -rf $(OBJ) $(BIN)
 
 # Phony targets (clean, all)
-.PHONY: all clean test_db
+.PHONY: all clean test_db client server
