@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
+#include "protocolviolationexception.h"
 #include "server.h"
 #include "newsapp.h"
 #include "inMemory.h"
@@ -42,12 +43,23 @@ Server init(int argc, char* argv[]) {
 void serve_client(Server& server, NewsApp& app) {
     auto conn = server.waitForActivity();
     if (conn != nullptr) {
-            try {
-                app.processRequest(conn);
-            } catch (ConnectionClosedException&) {
-                    server.deregisterConnection(conn);
-                    cout << "Client closed connection" << endl;
-            }
+        try {
+            app.processRequest(conn);
+        } catch (const ProtocolViolationException& e) {
+            std::cerr << "ERROR " << e.msg << std::endl;
+            std::cout << "Inappropriate behaviour, disconnecting client..." << std::endl;
+            server.deregisterConnection(conn);
+        } catch (const ConnectionClosedException&) {
+            cout << "Client closed connection" << endl;
+            server.deregisterConnection(conn);
+        } catch (const std::exception& e) {
+            std::cerr << "Uknown exception caught, closing server..." << std::endl;
+            std::cerr << e.what() << std::endl;
+            return;
+        } catch (...) {
+            std::cerr << "UKNOWN ERROR, closing server..." << std::endl;
+           return;
+        }
     } else {
             conn = std::make_shared<Connection>();
             server.registerConnection(conn);
