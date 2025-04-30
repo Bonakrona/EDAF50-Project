@@ -11,13 +11,13 @@ class ClientMessenger {
         /* Creates the client messenger. */
         ClientMessenger();
 
-        void listNewsgroups(const std::shared_ptr<Connection>& conn) const;
+        int listNewsgroups(const std::shared_ptr<Connection>& conn) const;
 
         void createNewsgroup(const std::shared_ptr<Connection>& conn) const;
 
         void deleteNewsgroup(const std::shared_ptr<Connection>& conn) const;
 
-        void listArticles(const std::shared_ptr<Connection>& conn) const;
+        int listArticles(const std::shared_ptr<Connection>& conn, int ngID) const;
 
         void createArticle(const std::shared_ptr<Connection>& conn) const;
         
@@ -28,9 +28,7 @@ class ClientMessenger {
     private:
         MessageHandler mh;
 
-        //string inputStringWithoutSpaces(std::string& type) const;
-
-        int inputID(const std::string& IDtype) const;
+        int inputID() const;
 };
 
 #endif  

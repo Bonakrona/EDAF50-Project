@@ -25,7 +25,8 @@ std::vector<std::string> commands {
     "list_articles",
     "create_article",
     "delete_article",
-    "get_article",
+    "read_article",
+    "help",
     "exit"
 };
 
@@ -57,32 +58,19 @@ std::shared_ptr<Connection> setupConnection(int argc, char* argv[]) {
 string inputCommand() {
 	string input = "";
 
-    cout << "Available commands are: \n\n";
-
-    for (auto c : commands) {
-        cout << c << endl;
-    }
-    cout << endl;
-
-    cout << "Select a command: \n\n";
-
     while (cin >> input){ 
 		if (std::find(commands.begin(), commands.end(), input) != commands.end()) {
             break;
         }
-        cout << "Incorrect command. The available commands are: \n\n";
-        for (auto c : commands) {
-            cout << c << endl;
-        }
-        cout << endl;
+        cout << "Incorrect command. Type \"help\" to list the available commands.\n";
 	}
 
     return input;
 }
 
-int app(const std::shared_ptr<Connection>& conn, const ClientMessenger cm) {
+int app(const std::shared_ptr<Connection>& conn, const ClientMessenger& cm) {
 
-    cout << "\n\n-----------------------------------------------------------------------\n\n";
+    cout << "\nSelect a command: \n\n";
     string command = inputCommand();
     
     try {
@@ -93,13 +81,18 @@ int app(const std::shared_ptr<Connection>& conn, const ClientMessenger cm) {
         } else if (command == "delete_newsgroup") {
             cm.deleteNewsgroup(conn);
         } else if (command == "list_articles") {
-            cm.listArticles(conn);
+            cm.listArticles(conn,0);
         } else if (command == "create_article") {
             cm.createArticle(conn);
         } else if (command == "delete_article") {
             cm.deleteArticle(conn);
-        } else if (command == "get_article") {
+        } else if (command == "read_article") {
             cm.getArticle(conn);
+        } else if (command == "help") {
+            cout << "The available commands are: \n\n";
+            for (auto c : commands) {
+                cout << c << "\n";
+            }
         } else if (command == "exit") {
             cout << "Exiting. Thank you for using the client!\n";
             return(0);
@@ -107,30 +100,30 @@ int app(const std::shared_ptr<Connection>& conn, const ClientMessenger cm) {
             cerr << "\n\n\n Incorrect command was accepted. Hopefully you never read this, check that inputCommand() works correctly.";
             exit(3);
         }
-    } catch (ConnectionClosedException) {
-        cerr << "The connection is closed. Exeiting the program";
+    } catch (ConnectionClosedException& e) {
+        cerr << "The connection is closed.\n" << "Exeiting the program.\n";
+        exit(3);
+    } catch(ProtocolViolationException& e) {
+        cerr << "Protocol violation exception caught: " << e.msg << "\n" << "Exeiting the program.\n";
+        exit(3);
+    } catch(std::exception& e) {
+        cerr << "Exception caught: " << e.what() << "\n" << "Exeiting the program.\n";
         exit(3);
     }
 
-    cout << "\nContinue operation? (y,n)\n";
-    string exit_command = "";
-    getline(cin >> std::ws,exit_command);
-    while (true) {
-        if (exit_command == "n") {
-            cout << "Exiting. Thank you for using the client!\n";
-            return(0);
-        } else if (exit_command == "y") {
-            return 1;
-        } else {
-            cout << "Continue operation? (y,n)\n";
-            getline(cin >> std::ws,exit_command);
-        }
-    }
+   return(1);
 }
 
 int main(int argc, char* argv[]) {
 
     std::shared_ptr<Connection> conn = setupConnection(argc, argv);
     ClientMessenger cm;
+
+    cout << "Available commands are: \n\n";
+
+    for (auto c : commands) {
+        cout << c << "\n";
+    }
+
     while (app(conn,cm)){}
 }
