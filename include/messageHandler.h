@@ -12,15 +12,6 @@ class MessageHandler{
     public: 
         /* Creates a message handaler */
         MessageHandler() = default;
-
-        // Unsure if this is needed: 
-        //    /* Deletes the messaga handaler*/
-        //    ~MessageHandler();
-        //
-        //    /* Message handler cannot be copied to assigned*/
-        //    MessageHandler(const MessageHandler&) = delete;
-        //    MessageHandler& operator=(const MessageHandler&) = delete;
-        //    MessageHandler& operator=(MessageHandler&&) = delete;
         
         /* Transmit a code */
         void sendCode(const std::shared_ptr<Connection>& conn, const int code) const;

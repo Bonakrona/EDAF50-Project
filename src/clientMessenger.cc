@@ -1,20 +1,77 @@
-#include <clientMessenger.h>
-#include <messageHandler.h>
-#include <protocol.h>
-#include <protocolviolationexception.h>
+#include "clientMessenger.h"
+#include "messageHandler.h"
+#include "protocol.h"
+#include "protocolviolationexception.h"
+#include "connectionclosedexception.h"
 
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 using std::string;
 using std::cin;
 using std::cout;
 using std::cerr;
-using std::endl;
 
-ClientMessenger::ClientMessenger() {
-    mh = MessageHandler();
+
+ClientMessenger::ClientMessenger() {}
+
+void ClientMessenger::runApp(const std::shared_ptr<Connection>& conn) const {
+    cout << "Available commands are: \n\n";
+
+    for (auto c : commands) {
+        cout << c << "\n";
+    }
+
+    while (app(conn)){}
+}
+
+
+int ClientMessenger::app(const std::shared_ptr<Connection>& conn) const {
+
+    cout << "\nSelect a command: \n\n";
+    string command = inputCommand();
+    
+    try {
+        if (command == "list_newsgroups") {
+            listNewsgroups(conn);
+        } else if (command == "create_newsgroup") {
+            createNewsgroup(conn);
+        } else if (command == "delete_newsgroup") {
+            deleteNewsgroup(conn);
+        } else if (command == "list_articles") {
+            listArticles(conn,0);
+        } else if (command == "create_article") {
+            createArticle(conn);
+        } else if (command == "delete_article") {
+            deleteArticle(conn);
+        } else if (command == "read_article") {
+            getArticle(conn);
+        } else if (command == "help") {
+            cout << "The available commands are: \n\n";
+            for (auto c : commands) {
+                cout << c << "\n";
+            }
+        } else if (command == "exit") {
+            cout << "Exiting. Thank you for using the client!\n";
+            return(0);
+        } else {
+            cerr << "\n\n\n Incorrect command was accepted. Hopefully you never read this, check that inputCommand() works correctly.";
+            exit(3);
+        }
+    } catch (ConnectionClosedException& e) {
+        cerr << "The connection is closed.\n" << "Exeiting the program.\n";
+        exit(3);
+    } catch(ProtocolViolationException& e) {
+        cerr << "Protocol violation exception caught: " << e.msg << "\n" << "Exeiting the program.\n";
+        exit(3);
+    } catch(std::exception& e) {
+        cerr << "Exception caught: " << e.what() << "\n" << "Exeiting the program.\n";
+        exit(3);
+    }
+
+   return(1);
 }
 
 int ClientMessenger::listNewsgroups(const std::shared_ptr<Connection>& conn) const {
@@ -364,7 +421,20 @@ void ClientMessenger::getArticle(const std::shared_ptr<Connection>& conn) const 
         throw ProtocolViolationException("Incorrect terminating code when using get_article()");
     }
 }
- 
+
+string ClientMessenger::inputCommand() const {
+	string input = "";
+
+    while (cin >> input){ 
+		if (std::find(commands.begin(), commands.end(), input) != commands.end()) {
+            break;
+        }
+        cout << "Incorrect command. Type \"help\" to list the available commands.\n";
+	}
+
+    return input;
+}
+
 int ClientMessenger::inputID() const {
     string IDStr = "";
 
