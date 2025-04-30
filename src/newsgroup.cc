@@ -85,7 +85,7 @@ unsigned long long Newsgroup::get_id() const
     return id;
 }
 
-std::string Newsgroup::get_name() const
+const std::string& Newsgroup::get_name() const
 {
     return name;
 }

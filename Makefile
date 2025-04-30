@@ -18,7 +18,7 @@ $1: $2
 endef
 
 ## ALL:
-all: server client
+all: server_mem server_disc client
 
 ## TEST DATABASE:
 # Output Executable Name
@@ -29,6 +29,7 @@ TEST_DB_SRCS := \
 	$(SRC)/article.cc \
 	$(SRC)/newsgroup.cc \
 	$(SRC)/inMemory.cc \
+	$(SRC)/inDisc.cc \
 	$(SRC)/TestDatabase.cc
 
 TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
@@ -38,8 +39,10 @@ test_db: $(TEST_DB)
 $(eval $(call build_executable,$(TEST_DB),$(TEST_DB_OBJS)))
 
 ## SERVER:
-SERVER = $(BIN)/server
-SERVER_SRCS = \
+SERVER_MEM = $(BIN)/server_mem
+SERVER_DISC = $(BIN)/server_disc
+
+SERVER_MEM_SRCS = \
 	$(SRC)/connection.cc \
 	$(SRC)/server.cc \
 	$(SRC)/newsapp.cc \
@@ -48,11 +51,27 @@ SERVER_SRCS = \
 	$(SRC)/newsgroup.cc \
 	$(SRC)/inMemory.cc \
 	$(SRC)/servermain.cc
-SERVER_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_SRCS))
 
-server: $(SERVER)
+SERVER_DISC_SRCS = \
+	$(SRC)/connection.cc \
+	$(SRC)/server.cc \
+	$(SRC)/newsapp.cc \
+	$(SRC)/messageHandler.cc \
+	$(SRC)/article.cc \
+	$(SRC)/newsgroup.cc \
+	$(SRC)/inDisc.cc \
+	$(SRC)/servermain.cc
 
-$(eval $(call build_executable,$(SERVER),$(SERVER_OBJS)))
+SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_MEM_SRCS))
+SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_DISC_SRCS))
+
+server_mem: $(SERVER_MEM)
+
+$(eval $(call build_executable,$(SERVER_MEM),$(SERVER_MEM_OBJS)))
+
+server_disc: $(SERVER_DISC)
+
+$(eval $(call build_executable,$(SERVER_DISC),$(SERVER_DISC_OBJS)))
 
 ## CLIENT:
 CLIENT = $(BIN)/client

@@ -1,12 +1,14 @@
 #include "inMemory.h"
+#include "inDisc.h"
 #include "database.h"
 #include "newsgroup.h"
 #include "article.h"
 
+#include <fstream>
 #include <iostream>
 #include <cassert>
 
-void test_article() {
+void testArticle() {
     Article article("News1", "Max Mustermann", "These are the news.", 1);
     assert(article.get_title() == "News1");
     assert(article.get_author() == "Max Mustermann");
@@ -14,7 +16,7 @@ void test_article() {
     std::cout << "Article tests passed!" << std::endl;
 }
 
-void test_newsgroup() {
+void testNewsgroup() {
     Newsgroup group("Fun News", 1);
 
     assert(group.get_name() == "Fun News");
@@ -68,24 +70,24 @@ void test_newsgroup() {
     std::cout << "NewsGroup tests passed!" << std::endl;
 }
 
-void test_database(){
-    inMemory test;
+void testInMemory(){
+    inMemory db;
 
-    bool added1 = test.addNewsgroup("New News");
-    bool not_added = test.addNewsgroup("New News");
-    bool added2 = test.addNewsgroup("Not News");
+    bool added1 = db.addNewsgroup("New News");
+    bool not_added = db.addNewsgroup("New News");
+    bool added2 = db.addNewsgroup("Not News");
 
     assert(added1 == true);
     assert(not_added == false);
     assert(added2 == true);
 
-    auto N = test.getNewsgroup(1);
+    auto N = db.getNewsgroup(1);
     assert(N.has_value());
     assert(N->get().get_name() == "New News");
-    bool removed = test.removeNewsgroup(1);
+    bool removed = db.removeNewsgroup(1);
     assert(removed == true);
-    assert(test.getNewsgroup(1) == std::nullopt);
-    assert(test.removeNewsgroup(3) == false);
+    assert(db.getNewsgroup(1) == std::nullopt);
+    assert(db.removeNewsgroup(3) == false);
 
     Article art1("News1", "Max Mustermann", "These are the news.", 1);
     Article art2("News2", "Anna Kristina", "Bla bla bla.", 2);
@@ -93,15 +95,15 @@ void test_database(){
 
     std::vector<Article> exampleArticleVector {art1, art2, art3};
     
-    bool addedA1 = test.addNewsgroupsArticle("News1", "Max Mustermann", "These are the news.", N.value());
-    bool addedA2 = test.addNewsgroupsArticle("News2", "Anna Kristina", "Bla bla bla.", N.value());
-    bool addedA3 = test.addNewsgroupsArticle("News3", "Jona Anhalte", "Important news.", N.value());
+    bool addedA1 = db.addNewsgroupsArticle("News1", "Max Mustermann", "These are the news.", N.value());
+    bool addedA2 = db.addNewsgroupsArticle("News2", "Anna Kristina", "Bla bla bla.", N.value());
+    bool addedA3 = db.addNewsgroupsArticle("News3", "Jona Anhalte", "Important news.", N.value());
     assert(addedA1 == true);
     assert(addedA2 == true);
     assert(addedA3 == true);
     
     //befor removal
-    std::vector<Article> listedNewsgroupArticles = test.listNewsgroupsArticles(N.value());
+    std::vector<Article> listedNewsgroupArticles = db.listNewsgroupsArticles(N.value());
     
     assert(listedNewsgroupArticles.size() == exampleArticleVector.size());
 
@@ -113,18 +115,18 @@ void test_database(){
     }
 
     // removal
-    bool removedNewsgroupArticle = test.removeNewsgroupsArticle(1, N.value());
+    bool removedNewsgroupArticle = db.removeNewsgroupsArticle(1, N.value());
     assert(removedNewsgroupArticle == true);
 
-    auto retrievedNewsgroupArticle1 = test.getNewsgroupsArticle(1, N.value());
-    auto retrievedNewsgroupArticle2 = test.getNewsgroupsArticle(2, N.value());
+    auto retrievedNewsgroupArticle1 = db.getNewsgroupsArticle(1, N.value());
+    auto retrievedNewsgroupArticle2 = db.getNewsgroupsArticle(2, N.value());
 
     assert(retrievedNewsgroupArticle1 == std::nullopt);
     assert(retrievedNewsgroupArticle2.has_value());
 
     //after removal
     std::vector<Article> exampleArticleVector2 {art2, art3};
-    std::vector<Article> listedNewsgroupArticles2 = test.listNewsgroupsArticles(N.value());
+    std::vector<Article> listedNewsgroupArticles2 = db.listNewsgroupsArticles(N.value());
     
     assert(listedNewsgroupArticles2.size() == exampleArticleVector2.size());
 
@@ -135,13 +137,79 @@ void test_database(){
         assert(listedNewsgroupArticles2[i].get_id() == exampleArticleVector2[i].get_id());
     }
 
-    std::cout << "Database tests passed!" << std::endl;
+    std::cout << "InMemory database tests passed!" << std::endl;
+}
+
+void testInDisc(){
+
+    fs::remove_all("Database");
+
+    inDisc db;
+
+    bool added1 = db.addNewsgroup("New News");
+    bool not_added = db.addNewsgroup("New News");
+    bool added2 = db.addNewsgroup("Not News");
+
+    assert(added1 == true);
+    assert(not_added == false);
+    assert(added2 == true);
+
+    auto groups = db.listNewsgroups();
+    assert(groups.size() == 2);
+    auto& ng = groups[0];
+
+    assert(db.addNewsgroupsArticle("News1", "Max Mustermann", "These are the news.", ng) == true);
+
+    fs::path root = fs::current_path() / "Database";
+    fs::path metaFile = root / "metadata.txt";
+    assert(fs::exists(metaFile));
+    std::ifstream inMeta(metaFile);
+    int storedNextId;
+    inMeta >> storedNextId;
+    assert(storedNextId == 3);
+
+    fs::path groupDir1 = root / "1_New News";
+    assert(fs::exists(groupDir1));
+
+    fs::path groupDir2 = root / "2_Not News";
+    assert(fs::exists(groupDir2));
+
+    fs::path groupMeta = groupDir1 / "metadata.txt";
+    assert(fs::exists(groupMeta));
+    std::ifstream inGroupMeta(groupMeta);
+    int nextArticleID;
+    inGroupMeta >> nextArticleID;
+    assert(nextArticleID == 2);
+
+    fs::path articleFile = groupDir1 / "articles" / "1.txt";
+    assert(fs::exists(articleFile));
+    std::ifstream inArticle(articleFile);
+    std::string line;
+    std::getline(inArticle, line);
+    assert(line == "1");
+    std::getline(inArticle, line);
+    assert(line == "News1");
+    std::getline(inArticle, line);
+    assert(line == "Max Mustermann");
+    std::getline(inArticle, line);
+    assert(line == "These are the news.");
+
+    bool removed = db.removeNewsgroupsArticle(1, ng);
+    assert(removed == true);
+    assert(!fs::exists(articleFile));
+
+    bool removed2 = db.removeNewsgroup(ng.get_id());
+    assert(removed2 == true);
+    assert(!fs::exists(groupDir1));
+
+    std::cout << "InDisc database tests passed!" << std::endl;
 }
 
 int main() {
-    test_article();
-    test_newsgroup();
-    test_database();
+    testArticle();
+    testNewsgroup();
+    testInMemory();
+    testInDisc();
     std::cout << "All tests passed successfully!" << std::endl;
     return 0;
 }

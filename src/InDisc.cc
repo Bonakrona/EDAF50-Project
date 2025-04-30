@@ -1,72 +1,79 @@
 #include <fstream>
-#include "InDisc.h"
+#include "inDisc.h"
 #include <iostream>
 #include <sstream>
 
-InDisc::InDisc()
+inDisc::inDisc()
 {
-    fs::path metadataPath = root / "metadata.txt";
-    if (fs::exists(metadataPath))
+    if (fs::exists(root))
     {
-        std::ifstream in(metadataPath);
-        in >> nextNewsgroupID;
+        loadDisc();
+    }
+    else
+    {
+        fs::create_directories("Database");
+        fs::path metadataPath = root / "metadata.txt";
+        nextNewsgroupID = 1;
+        std::ofstream metadata(metadataPath);
+        metadata << nextNewsgroupID;
+    }
+}
 
-        std::vector<fs::path> directory = findDirectories(root);
-        if (!directory.empty())
+void inDisc::loadDisc(){
+    fs::path metadataPath = root / "metadata.txt";
+    std::ifstream in(metadataPath);
+    in >> nextNewsgroupID;
+    
+    std::vector<fs::path> newsgroupDirectories = findDirectories(root);
+    if (!newsgroupDirectories.empty())
+    {
+        for (auto &newsgroupDirectory : newsgroupDirectories)
         {
-            for (auto &file : directory)
+            std::string directoryName = newsgroupDirectory.string();
+            std::string s;
+            std::stringstream strs(directoryName);
+    
+            unsigned long long id;
+    
+            while (getline(strs, s, '_'))
             {
-                std::string strFile = file.string();
-                std::string s;
-                std::stringstream strs(strFile);
-
-                unsigned long long id;
-
-                while (getline(strs, s, '_'))
+                id = std::stoull(s.substr(0, s.find('_')));
+                std::string name = s.substr(s.find('_') + 1);
+    
+                fs::path directoryMetadata = newsgroupDirectory / "metadata.txt";
+                unsigned long long newsgroupNextArticleID;
+                if (fs::exists(directoryMetadata))
                 {
-                    id = std::stoull(s.substr(0, s.find('_')));
-                    std::string name = s.substr(s.find('_') + 1);
-
-                    fs::path currentMetadata = file / "metadata.txt";
-                    unsigned long long newsgroupNextArticleId;
-                    if (fs::exists(currentMetadata))
-                    {
-                        std::ifstream in(currentMetadata);
-                        in >> newsgroupNextArticleId;
-                    }
-                    newsgroups[id] = Newsgroup(name, id, newsgroupNextArticleId);
-                    newsgroupNames.insert(name);
-                    newsgroupPaths[id] = strFile;
+                    std::ifstream in(directoryMetadata);
+                    in >> newsgroupNextArticleID;
                 }
-                std::vector<fs::path> articleFiles = findFiles(file / "articles");
-                if (!articleFiles.empty())
+                newsgroups[id] = Newsgroup(name, id, newsgroupNextArticleID);
+                newsgroupNames.insert(name);
+                newsgroupPaths[id] = directoryName;
+            }
+            std::vector<fs::path> articleFiles = findFiles(newsgroupDirectory / "articles");
+            if (!articleFiles.empty())
+            {
+                for (auto &articleFile : articleFiles)
                 {
-                    for (auto &articleFile : articleFiles)
+                    std::ifstream artFile(articleFile);
+                    
+                    while (getline(artFile, s, '\n'))
                     {
-                        std::ifstream artFile(articleFile);
-                        
-                        while (getline(artFile, s, '\n'))
-                        {
-                            unsigned long long articleId = std::stoull(s.substr(0, s.find('\n')));
-                            std::string title = s.substr(s.find('\n') + 1);
-                            std::string author = s.substr(s.find('\n') + 1);
-                            std::string text = s.substr(s.find('\n') + 1);
-                            newsgroups[id].addArticle(title, author, text, articleId);
-                        }
+                        unsigned long long articleId = std::stoull(s.substr(0, s.find('\n')));
+                        std::string title = s.substr(s.find('\n') + 1);
+                        std::string author = s.substr(s.find('\n') + 1);
+                        std::string text = s.substr(s.find('\n') + 1);
+                        newsgroups[id].addArticle(title, author, text, articleId);
                     }
                 }
             }
         }
-        else
-        {
-            nextNewsgroupID = 1;
-            std::ofstream(metadataPath);
-            metadataPath << nextNewsgroupID;
-        }
     }
+
 }
 
-std::vector<fs::path> findDirectories(fs::path currentPath)
+std::vector<fs::path> inDisc::findDirectories(fs::path currentPath)
 {
     std::vector<fs::path> directories;
     for (auto &p : fs::recursive_directory_iterator(currentPath))
@@ -79,7 +86,7 @@ std::vector<fs::path> findDirectories(fs::path currentPath)
     return directories;
 }
 
-std::vector<fs::path> findFiles(fs::path currentPath)
+std::vector<fs::path> inDisc::findFiles(fs::path currentPath)
 {
     std::vector<fs::path> files;
     for (auto &p : fs::recursive_directory_iterator(currentPath))
@@ -92,22 +99,22 @@ std::vector<fs::path> findFiles(fs::path currentPath)
     return files;
 }
 
-bool InDisc::addNewsgroup(const std::string n)
+bool inDisc::addNewsgroup(const std::string n)
 {
     fs::path groupDir = root / (std::to_string(nextNewsgroupID) + "_" + n);
-    fs::create_directories(groupDir);
-
+    
     if (newsgroupNames.find(n) != newsgroupNames.end())
     {
         return false;
     }
     else
     {
+        fs::create_directories(groupDir);
+        
         newsgroups[nextNewsgroupID] = Newsgroup(n, nextNewsgroupID);
         newsgroupNames.insert(n);
         newsgroupPaths[nextNewsgroupID] = groupDir;
         nextNewsgroupID++;
-        return true;
     }
     
     std::ofstream newsgroupMetadata(groupDir / "metadata.txt");
@@ -123,10 +130,13 @@ bool InDisc::addNewsgroup(const std::string n)
         dbMetadataFile << nextNewsgroupID;
         dbMetadataFile.close();
     }
+
+    fs::create_directories(groupDir/ "articles");
+
     return true;
 };
 
-std::optional<std::reference_wrapper<Newsgroup>> InDisc::getNewsgroup(unsigned long long id)
+std::optional<std::reference_wrapper<Newsgroup>> inDisc::getNewsgroup(unsigned long long id)
 {
     auto it = newsgroups.find(id);
     if (it != newsgroups.end())
@@ -139,7 +149,7 @@ std::optional<std::reference_wrapper<Newsgroup>> InDisc::getNewsgroup(unsigned l
     }
 };
 
-bool InDisc::removeNewsgroup(unsigned long long id)
+bool inDisc::removeNewsgroup(unsigned long long id)
 {
     auto it = newsgroups.find(id);
     if (it != newsgroups.end())
@@ -148,7 +158,7 @@ bool InDisc::removeNewsgroup(unsigned long long id)
         newsgroups.erase(it);
 
         fs::path articlePath = newsgroupPaths[id];
-        fs::remove(articlePath);
+        fs::remove_all(articlePath);
         
         newsgroupPaths.erase(id);
 
@@ -157,7 +167,7 @@ bool InDisc::removeNewsgroup(unsigned long long id)
     return false;
 };
 
-std::vector<Newsgroup> InDisc::listNewsgroups()
+std::vector<Newsgroup> inDisc::listNewsgroups()
 {
     std::vector<Newsgroup> res;
     for (const auto &pair : newsgroups)
@@ -167,12 +177,12 @@ std::vector<Newsgroup> InDisc::listNewsgroups()
     return res;
 }
 
-std::vector<Article> InDisc::listNewsgroupsArticles(Newsgroup &ng)
+std::vector<Article> inDisc::listNewsgroupsArticles(Newsgroup &ng)
 {
     return ng.listArticles();
 }
 
-bool InDisc::addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng)
+bool inDisc::addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng)
 {
     fs::path newsgroupPath = newsgroupPaths[ng.get_id()];
     std::ofstream metadataFile(newsgroupPath / "metadata.txt");
@@ -182,24 +192,24 @@ bool InDisc::addNewsgroupsArticle(const std::string &t, const std::string &a, co
         metadataFile << tempID;
         metadataFile.close();
 
-        std::ofstream articleFile(newsgroupPath / "article" / (std::to_string(tempID) + ".txt"));
+        std::ofstream articleFile(newsgroupPath / "articles" / (std::to_string(ng.nextArcticleID) + ".txt"));
         if (articleFile.is_open())
         {
-            articleFile << tempID << '\n' << t << '\n' << a << '\n' << txt;
+            articleFile << ng.nextArcticleID << '\n' << t << '\n' << a << '\n' << txt;
             articleFile.close();
         }
     }
     return ng.addArticle(t, a, txt);
 }
 
-bool InDisc::removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng)
+bool inDisc::removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng)
 {
-    fs::path articlePath = newsgroupPaths[ng.get_id()] / "article" / (std::to_string(id) + ".txt");
+    fs::path articlePath = newsgroupPaths[ng.get_id()] / "articles" / (std::to_string(id) + ".txt");
     fs::remove(articlePath);
     return ng.removeArticle(id);
 }
 
-std::optional<Article> InDisc::getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const
+std::optional<Article> inDisc::getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const
 {
     return ng.getArticle(id);
 }

@@ -12,30 +12,29 @@
 namespace fs = std::filesystem;
 using std::string;
 
-class InDisc: public Database
+class inDisc: public Database
 {
 public:
-    InDisc();
-    std::vector<Newsgroup> listNewsgroups();
-    bool addNewsgroup(const string n);
-    bool removeNewsgroup(unsigned long long id);
-    std::optional<std::reference_wrapper<Newsgroup>> getNewsgroup(unsigned long long id);
+    inDisc();
+    std::vector<Newsgroup> listNewsgroups() override;
+    bool addNewsgroup(const string n) override;
+    bool removeNewsgroup(unsigned long long id) override;
+    std::optional<std::reference_wrapper<Newsgroup>> getNewsgroup(unsigned long long id) override;
 
-    std::vector<Article> listNewsgroupsArticles(Newsgroup &ng);
-    bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng);
-    bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng);
-    std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const;
+    std::vector<Article> listNewsgroupsArticles(Newsgroup &ng) override;
+    bool addNewsgroupsArticle(const std::string &t, const std::string &a, const std::string &txt, Newsgroup &ng) override;
+    bool removeNewsgroupsArticle(unsigned long long id, Newsgroup &ng) override;
+    std::optional<Article> getNewsgroupsArticle(unsigned long long id, Newsgroup &ng) const override;
 
 private:
     std::map<unsigned long long, Newsgroup> newsgroups;
-    // std::unordered_map<unsigned long long, Newsgroup> newsgroups; // commented, in order to pass tests (requires groups to be listed in order of 'id')
     std::unordered_set<std::string> newsgroupNames;
     unsigned long long nextNewsgroupID; // technically maximum here
     fs::path root = fs::current_path() / "Database";
     std::map<unsigned long long, fs::path> newsgroupPaths;
-
+    
+    void loadDisc();
     std::vector<fs::path> findDirectories(fs::path currentPath);
     std::vector<fs::path> findFiles(fs::path currentPath);
-
 };
 #endif
