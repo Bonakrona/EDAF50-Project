@@ -23,54 +23,60 @@ void inDisc::loadDisc(){
     fs::path metadataPath = root / "metadata.txt";
     std::ifstream in(metadataPath);
     in >> nextNewsgroupID;
-    
+
     std::vector<fs::path> newsgroupDirectories = findDirectories(root);
-    if (!newsgroupDirectories.empty())
-    {
-        for (auto &newsgroupDirectory : newsgroupDirectories)
-        {
-            std::string directoryName = newsgroupDirectory.string();
-            std::string s;
-            std::stringstream strs(directoryName);
-    
-            unsigned long long id;
-    
-            while (getline(strs, s, '_'))
-            {
-                id = std::stoull(s.substr(0, s.find('_')));
-                std::string name = s.substr(s.find('_') + 1);
-    
-                fs::path directoryMetadata = newsgroupDirectory / "metadata.txt";
-                unsigned long long newsgroupNextArticleID;
-                if (fs::exists(directoryMetadata))
-                {
-                    std::ifstream in(directoryMetadata);
-                    in >> newsgroupNextArticleID;
-                }
-                newsgroups[id] = Newsgroup(name, id, newsgroupNextArticleID);
-                newsgroupNames.insert(name);
-                newsgroupPaths[id] = directoryName;
+    if (!newsgroupDirectories.empty()) {
+        for (auto &newsgroupDirectory : newsgroupDirectories) {
+            std::string directoryName = newsgroupDirectory.filename().string();
+            size_t underscorePos = directoryName.find('_');
+
+            if (underscorePos == std::string::npos) {
+                continue;
             }
+
+            std::string idStr = directoryName.substr(0, underscorePos);
+            std::string name = directoryName.substr(underscorePos + 1);
+            unsigned long long id;
+
+            try {
+                id = std::stoull(idStr);
+            } catch (const std::exception& e) {
+                continue;
+            }
+
+            fs::path directoryMetadata = newsgroupDirectory / "metadata.txt";
+            unsigned long long newsgroupNextArticleID = 1;
+            if (fs::exists(directoryMetadata)) {
+                std::ifstream in(directoryMetadata);
+                in >> newsgroupNextArticleID;
+            }
+            newsgroups[id] = Newsgroup(name, id, newsgroupNextArticleID);
+            newsgroupNames.insert(name);
+            newsgroupPaths[id] = newsgroupDirectory.string();
+
             std::vector<fs::path> articleFiles = findFiles(newsgroupDirectory / "articles");
-            if (!articleFiles.empty())
-            {
-                for (auto &articleFile : articleFiles)
-                {
+            if (!articleFiles.empty()) {
+                for (auto &articleFile : articleFiles) {
                     std::ifstream artFile(articleFile);
-                    
-                    while (getline(artFile, s, '\n'))
-                    {
-                        unsigned long long articleId = std::stoull(s.substr(0, s.find('\n')));
-                        std::string title = s.substr(s.find('\n') + 1);
-                        std::string author = s.substr(s.find('\n') + 1);
-                        std::string text = s.substr(s.find('\n') + 1);
-                        newsgroups[id].addArticle(title, author, text, articleId);
+                    std::string s;
+                    unsigned long long articleId;
+                    std::string title, author, text;
+
+                    if (std::getline(artFile, s)) {
+                        try {
+                            articleId = std::stoull(s);
+                            std::getline(artFile, title);
+                            std::getline(artFile, author);
+                            std::getline(artFile, text);
+                            newsgroups[id].addArticle(title, author, text, articleId);
+                        } catch (const std::exception& e) {
+                            continue;
+                        }
                     }
                 }
             }
         }
     }
-
 }
 
 std::vector<fs::path> inDisc::findDirectories(fs::path currentPath)

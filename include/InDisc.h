@@ -1,5 +1,5 @@
-#ifndef InDisc_H
-#define InDisc_H
+#ifndef INDISC_H
+#define INDISC_H
 
 #include <string>
 #include <vector>

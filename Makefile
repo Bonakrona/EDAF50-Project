@@ -9,6 +9,9 @@ SRC := src
 OBJ := obj
 BIN := bin
 
+CXXFLAGS_MEM := $(CXXFLAGS) -DUSE_INMEMORY
+CXXFLAGS_DISC := $(CXXFLAGS) -DUSE_INDISC
+
 ### TARGETS
 # Macro for building the executable
 define build_executable
@@ -62,16 +65,28 @@ SERVER_DISC_SRCS = \
 	$(SRC)/inDisc.cc \
 	$(SRC)/servermain.cc
 
-SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_MEM_SRCS))
-SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_DISC_SRCS))
+SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/mem_%.o, $(SERVER_MEM_SRCS))
+SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/disc_%.o, $(SERVER_DISC_SRCS))
 
 server_mem: $(SERVER_MEM)
 
-$(eval $(call build_executable,$(SERVER_MEM),$(SERVER_MEM_OBJS)))
+$(SERVER_MEM): $(SERVER_MEM_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $^ -o $@
 
 server_disc: $(SERVER_DISC)
 
-$(eval $(call build_executable,$(SERVER_DISC),$(SERVER_DISC_OBJS)))
+$(SERVER_DISC): $(SERVER_DISC_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $^ -o $@
+
+$(OBJ)/mem_%.o: $(SRC)/%.cc
+	@mkdir -p $(OBJ)
+	$(CXX) $(CXXFLAGS_MEM) -c $< -o $@
+
+$(OBJ)/disc_%.o: $(SRC)/%.cc
+	@mkdir -p $(OBJ)
+	$(CXX) $(CXXFLAGS_DISC) -c $< -o $@
 
 ## CLIENT:
 CLIENT = $(BIN)/client
