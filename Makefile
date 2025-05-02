@@ -65,8 +65,8 @@ SERVER_DISC_SRCS = \
 	$(SRC)/inDisc.cc \
 	$(SRC)/servermain.cc
 
-SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/mem_%.o, $(SERVER_MEM_SRCS))
-SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/disc_%.o, $(SERVER_DISC_SRCS))
+SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_MEM_SRCS))
+SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_DISC_SRCS))
 
 server_mem: $(SERVER_MEM)
 
