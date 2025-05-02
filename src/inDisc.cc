@@ -54,6 +54,10 @@ void inDisc::loadDisc(){
             newsgroupNames.insert(name);
             newsgroupPaths[id] = newsgroupDirectory.string();
 
+            if (!fs::exists(newsgroupDirectory / "articles")) {
+                fs::create_directories(newsgroupDirectory / "articles");
+            }
+            
             std::vector<fs::path> articleFiles = findFiles(newsgroupDirectory / "articles");
             if (!articleFiles.empty()) {
                 for (auto &articleFile : articleFiles) {
