@@ -27,7 +27,7 @@ public:
     std::vector<Article> listArticles() const;
 
     unsigned long long get_id() const;
-    std::string get_name() const;
+    const std::string& get_name() const;
 
     
     unsigned long long nextArcticleID; //technically maximum here

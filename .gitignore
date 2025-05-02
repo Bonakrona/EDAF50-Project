@@ -34,3 +34,6 @@
 .vscode/*
 bin/*
 *:Zone.Identifier
+
+# Ignore disk Database
+Database/

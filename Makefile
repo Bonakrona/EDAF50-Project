@@ -9,6 +9,9 @@ SRC := src
 OBJ := obj
 BIN := bin
 
+CXXFLAGS_MEM := $(CXXFLAGS) -DUSE_INMEMORY
+CXXFLAGS_DISC := $(CXXFLAGS) -DUSE_INDISC
+
 ### TARGETS
 # Macro for building the executable
 define build_executable
@@ -18,7 +21,7 @@ $1: $2
 endef
 
 ## ALL:
-all: server client
+all: server_mem server_disc client
 
 ## TEST DATABASE:
 # Output Executable Name
@@ -29,6 +32,7 @@ TEST_DB_SRCS := \
 	$(SRC)/article.cc \
 	$(SRC)/newsgroup.cc \
 	$(SRC)/inMemory.cc \
+	$(SRC)/inDisc.cc \
 	$(SRC)/TestDatabase.cc
 
 TEST_DB_OBJS := $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(TEST_DB_SRCS))
@@ -38,10 +42,10 @@ test_db: $(TEST_DB)
 $(eval $(call build_executable,$(TEST_DB),$(TEST_DB_OBJS)))
 
 ## SERVER:
-SERVER_IN_MEMORY = $(BIN)/server_mem
-SERVER_IN_DISC = $(BIN)/server_disc
+SERVER_MEM = $(BIN)/server_mem
+SERVER_DISC = $(BIN)/server_disc
 
-SERVER_SRCS_MEM = \
+SERVER_MEM_SRCS = \
 	$(SRC)/connection.cc \
 	$(SRC)/server.cc \
 	$(SRC)/newsapp.cc \
@@ -49,25 +53,40 @@ SERVER_SRCS_MEM = \
 	$(SRC)/article.cc \
 	$(SRC)/newsgroup.cc \
 	$(SRC)/inMemory.cc \
-	$(SRC)/servermain_mem.cc
-SERVER_OBJS_MEM = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_SRCS_MEM))
+	$(SRC)/servermain.cc
 
-SERVER_SRCS_DISC = \
+SERVER_DISC_SRCS = \
 	$(SRC)/connection.cc \
 	$(SRC)/server.cc \
 	$(SRC)/newsapp.cc \
 	$(SRC)/messageHandler.cc \
 	$(SRC)/article.cc \
 	$(SRC)/newsgroup.cc \
-	$(SRC)/InDisc.cc \
-	$(SRC)/servermain_disc.cc
-SERVER_OBJS_DISC = $(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(SERVER_SRCS_DISC))
+	$(SRC)/inDisc.cc \
+	$(SRC)/servermain.cc
 
-server: $(SERVER_IN_MEMORY) $(SERVER_IN_DISC) 
+SERVER_MEM_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/mem_%.o, $(SERVER_MEM_SRCS))
+SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/disc_%.o, $(SERVER_DISC_SRCS))
 
-$(eval $(call build_executable,$(SERVER_IN_MEMORY),$(SERVER_OBJS_MEM)))
-$(eval $(call build_executable,$(SERVER_IN_DISC),$(SERVER_OBJS_DISC)))
+server_mem: $(SERVER_MEM)
 
+$(SERVER_MEM): $(SERVER_MEM_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $^ -o $@
+
+server_disc: $(SERVER_DISC)
+
+$(SERVER_DISC): $(SERVER_DISC_OBJS)
+	@mkdir -p $(BIN)
+	$(CXX) $^ -o $@
+
+$(OBJ)/mem_%.o: $(SRC)/%.cc
+	@mkdir -p $(OBJ)
+	$(CXX) $(CXXFLAGS_MEM) -c $< -o $@
+
+$(OBJ)/disc_%.o: $(SRC)/%.cc
+	@mkdir -p $(OBJ)
+	$(CXX) $(CXXFLAGS_DISC) -c $< -o $@
 
 ## CLIENT:
 CLIENT = $(BIN)/client
