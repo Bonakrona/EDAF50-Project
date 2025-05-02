@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
     #endif
 
     MessageHandler mh = MessageHandler();
+
     // initialize NewsApp
     NewsApp app = NewsApp(std::move(db), mh);
 
