@@ -3,7 +3,7 @@
 #include "protocolviolationexception.h"
 #include "server.h"
 #include "newsapp.h"
-#include "inMemory.h"
+#include "InDisc.h"
 #include "messageHandler.h"
 
 #include <cstdlib>
@@ -61,19 +61,14 @@ void serve_client(Server& server, NewsApp& app) {
 }
 
 int main(int argc, char* argv[]) {
-    auto IN_MEMORY = true;
-
     // initialize Server on port given in args
     Server server = init(argc, argv);
 
     // create (in-memory) Database + MessageHandler
     std::unique_ptr<Database> db = nullptr;
-    if (IN_MEMORY)  {
-        db = std::make_unique<inMemory>();
-    } else {
-        // TODO: after disk version of db is implemented
-    }
+    db = std::make_unique<InDisc>();
     MessageHandler mh = MessageHandler();
+    
     // initialize NewsApp
     NewsApp app = NewsApp(std::move(db), mh);
 
