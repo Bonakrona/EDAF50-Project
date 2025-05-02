@@ -20,13 +20,13 @@ For cleaning, use `make clean`.
 
 First, open two terminal windows, one for the server and one for the client.
 
-In the first one, start the server with `bin/myserver <port>`, e.g.,
+In the first one, start the server with `bin/server <port>`, e.g.,
 
 ```
 bin/server 1337
 ```
 
-In the other one, start the client with `myclient <server> <port>`, e.g.,
+In the other one, start the client with `client <server> <port>`, e.g.,
 
 ```
 bin/client localhost 1337
