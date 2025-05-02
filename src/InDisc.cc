@@ -66,7 +66,7 @@ InDisc::InDisc()
     }
 }
 
-std::vector<fs::path> findDirectories(fs::path currentPath)
+std::vector<fs::path> InDisc::findDirectories(fs::path currentPath)
 {
     std::vector<fs::path> directories;
     for (auto &p : fs::recursive_directory_iterator(currentPath))
@@ -79,7 +79,7 @@ std::vector<fs::path> findDirectories(fs::path currentPath)
     return directories;
 }
 
-std::vector<fs::path> findFiles(fs::path currentPath)
+std::vector<fs::path> InDisc::findFiles(fs::path currentPath)
 {
     std::vector<fs::path> files;
     for (auto &p : fs::recursive_directory_iterator(currentPath))
