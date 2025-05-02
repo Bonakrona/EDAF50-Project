@@ -7,15 +7,15 @@ Article::Article(const std::string& t, const std::string& a, const std::string& 
     id = i;
 };
 
-std::string Article::get_author() const{
+const std::string& Article::get_author() const{
     return author;
 };
 
-std::string Article::get_title() const{
+const std::string& Article::get_title() const{
     return title;
 };
 
-std::string Article::get_content() const{
+const std::string& Article::get_content() const{
     return text;
 }
 
