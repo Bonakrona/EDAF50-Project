@@ -113,6 +113,13 @@ error_client: $(ERR_CLIENT)
 
 $(eval $(call build_executable,$(ERR_CLIENT),$(ERR_CLIENT_OBJS)))
 
+
+install: all
+	cp $(SRC)/client $(BIN)/client
+	cp $(SRC)/server_mem $(BIN)/server_mem
+	cp $(SRC)/server_disc $(BIN)/server_disc
+
+
 # Rule for creating object files
 $(OBJ)/%.o: $(SRC)/%.cc
 	@mkdir -p $(OBJ)
@@ -121,7 +128,9 @@ $(OBJ)/%.o: $(SRC)/%.cc
 # Clean target to remove object files and executable
 clean:
 	rm -rf $(OBJ) $(BIN)
-	rm $src
+	rm ${SRC}/client 
+	rm ${SRC}/server_mem
+	rm ${SRC}/server_disc 
 
 # Phony targets (clean, all)
-.PHONY: all clean test_db client server
+.PHONY: all clean test_db client server install
