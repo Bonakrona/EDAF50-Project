@@ -79,9 +79,9 @@ int ClientMessenger::app(const std::shared_ptr<Connection>& conn) const {
    return(1);
 }
 
-std::vector<int> ClientMessenger::listNewsgroups(const std::shared_ptr<Connection>& conn) const {
+std::unordered_set<int> ClientMessenger::listNewsgroups(const std::shared_ptr<Connection>& conn) const {
     int numberOfng = 0;
-    std::vector<int> newsgroupIDs;
+    std::unordered_set<int> newsgroupIDs;
 
     // Send command
     mh.sendCode(conn, code(Protocol::COM_LIST_NG));
@@ -105,7 +105,7 @@ std::vector<int> ClientMessenger::listNewsgroups(const std::shared_ptr<Connectio
         string ngName = mh.recvStringParameter(conn);
 
         cout << "\n Name: \"" << ngName << "\", with ID: " << ngID;
-        newsgroupIDs.push_back(ngID);
+        newsgroupIDs.insert(ngID);
     }
     if (numberOfng != 0) {
         cout << "\n";
@@ -156,7 +156,7 @@ void ClientMessenger::createNewsgroup(const std::shared_ptr<Connection>& conn) c
 
 void ClientMessenger::deleteNewsgroup(const std::shared_ptr<Connection>& conn) const {
     // List available newsgroups
-    std::vector<int> newsgroupIDs = listNewsgroups(conn);
+    std::unordered_set<int> newsgroupIDs = listNewsgroups(conn);
     if (newsgroupIDs.empty()) {
         cout << "There are no newsgroups that can be deleted.\n";
         return;
@@ -197,7 +197,7 @@ int ClientMessenger::listArticles(const std::shared_ptr<Connection>& conn, int n
 
     if (ngID == 0) {
         // List available newsgroups
-        std::vector<int> newsgroupIDs = listNewsgroups(conn);
+        std::unordered_set<int> newsgroupIDs = listNewsgroups(conn);
         if (newsgroupIDs.empty()) {
             cout << "Create a newsgroup before listing articles.\n";
             return(numberOfArticles);
@@ -252,7 +252,7 @@ int ClientMessenger::listArticles(const std::shared_ptr<Connection>& conn, int n
 
 void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) const {
     // List available newsgroups
-    std::vector<int> newsgroupIDs = listNewsgroups(conn);
+    std::unordered_set<int> newsgroupIDs = listNewsgroups(conn);
     if (newsgroupIDs.empty()) {
         cout << "Create a newsgroup before creating an article.\n";
         return;
@@ -261,7 +261,7 @@ void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) con
     // Input ID and article data
     cout << "\nEnter ID of newsgroup to create an article in:\n";
     int ngID = inputID();
-    if (std::find(newsgroupIDs.begin(), newsgroupIDs.end(), ngID) == newsgroupIDs.end()) {
+    if (newsgroupIDs.find(ngID) == newsgroupIDs.end()) {
         cout << "Newsgroup with ID " << ngID << " does not exist. No article was created.";
         return;
     }
@@ -320,7 +320,7 @@ void ClientMessenger::createArticle(const std::shared_ptr<Connection>& conn) con
 
 void ClientMessenger::deleteArticle(const std::shared_ptr<Connection>& conn) const {
     // List available newsgroups
-    std::vector<int> newsgroupIDs = listNewsgroups(conn);
+    std::unordered_set<int> newsgroupIDs = listNewsgroups(conn);
     if (newsgroupIDs.empty()) {
         cout << "Create a newsgroup with articles before deleteing an article.\n";
         return;
@@ -374,7 +374,7 @@ void ClientMessenger::deleteArticle(const std::shared_ptr<Connection>& conn) con
 
 void ClientMessenger::getArticle(const std::shared_ptr<Connection>& conn) const {
     // List available newsgroups
-    std::vector<int> newsgroupIDs = listNewsgroups(conn);
+    std::unordered_set<int> newsgroupIDs = listNewsgroups(conn);
     if (newsgroupIDs.empty()) {
         cout << "Create a newsgroup with articles before reading an article.\n";
         return;

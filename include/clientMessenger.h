@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #include "connection.h"
 #include "messageHandler.h"
@@ -20,8 +21,8 @@ class ClientMessenger {
         /* Prompts the user to input a command executes the corresponding action. */
         int app(const std::shared_ptr<Connection>& conn) const;
 
-        /* List the available newsgroups and returns a vector containing their IDs. */
-        std::vector<int> listNewsgroups(const std::shared_ptr<Connection>& conn) const;
+        /* List the available newsgroups and returns an unordered_set containing their IDs. */
+        std::unordered_set<int> listNewsgroups(const std::shared_ptr<Connection>& conn) const;
 
         /* Creates a newsgroup with a name given in the console. */
         void createNewsgroup(const std::shared_ptr<Connection>& conn) const;
