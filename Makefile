@@ -25,7 +25,7 @@ all: server_mem server_disc client
 
 ## TEST DATABASE:
 # Output Executable Name
-TEST_DB = $(BIN)/TestDatabase
+TEST_DB = $(SRC)/TestDatabase
 
 # Source and Object files
 TEST_DB_SRCS := \
@@ -42,8 +42,8 @@ test_db: $(TEST_DB)
 $(eval $(call build_executable,$(TEST_DB),$(TEST_DB_OBJS)))
 
 ## SERVER:
-SERVER_MEM = $(BIN)/server_mem
-SERVER_DISC = $(BIN)/server_disc
+SERVER_MEM = $(SRC)/server_mem
+SERVER_DISC = $(SRC)/server_disc
 
 SERVER_MEM_SRCS = \
 	$(SRC)/connection.cc \
@@ -89,7 +89,7 @@ $(OBJ)/disc_%.o: $(SRC)/%.cc
 	$(CXX) $(CXXFLAGS_DISC) -c $< -o $@
 
 ## CLIENT:
-CLIENT = $(BIN)/client
+CLIENT = $(SRC)/client
 CLIENT_SRCS = \
 	$(SRC)/connection.cc \
 	$(SRC)/messageHandler.cc \
@@ -102,7 +102,7 @@ client: $(CLIENT)
 
 $(eval $(call build_executable,$(CLIENT),$(CLIENT_OBJS)))
 
-ERR_CLIENT = $(BIN)/error_client
+ERR_CLIENT = $(SRC)/error_client
 ERR_CLIENT_SRCS = \
 	$(SRC)/connection.cc \
 	$(SRC)/messageHandler.cc \
@@ -121,6 +121,7 @@ $(OBJ)/%.o: $(SRC)/%.cc
 # Clean target to remove object files and executable
 clean:
 	rm -rf $(OBJ) $(BIN)
+	rm $src
 
 # Phony targets (clean, all)
 .PHONY: all clean test_db client server
