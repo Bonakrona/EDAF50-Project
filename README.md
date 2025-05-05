@@ -1,10 +1,10 @@
 # CPP Project
 
 News-server and client implementation of C++ group project for LTH course `EDAF50`. Members:
-- Victor Truong ()
-- ...
-- ...
-- ...
+- Victor Truong (vi2840tr-s@student.lu.se)
+- Doris Näslund (doris.naslund.1625@student.lu.se)
+- Anna-Kristina Voss (anna-kristina.voss@nateko.lu.se)
+- Jona Waldfogel (jo5720wa-s@student.lu.se)
 
 ## building with make
 
