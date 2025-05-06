@@ -8,11 +8,13 @@ News-server and client implementation of C++ group project for LTH course `EDAF5
 
 ## building with make
 
-Running `make` (equivalent to `make all`) in the main directory builds the the server and client into executables that can be found in `bin/` 
+Running `make` (equivalent to `make all`) in the main directory builds the the server and client into executables that can be found in `src/` 
 - `make server` - builds the two server executables (in-memory and disk)
 - `make client` - builds the client executable
 - `make test_db` - unit tests for database
 - `make error_client` - faulty client for testing protocol violations
+
+Running `make install` coipes the executables into the directory `bin/`. If the executables have not been compiled before running `make install`, an equivalent to `make all` is run before copying the executables to `bin/`.
 
 For cleaning, use `make clean`.
 
