@@ -16,7 +16,6 @@ CXXFLAGS_DISC := $(CXXFLAGS) -DUSE_INDISC
 # Macro for building the executable
 define build_executable
 $1: $2
-	@mkdir -p $(BIN)
 	$(CXX) $2 -o $1
 endef
 
@@ -71,13 +70,11 @@ SERVER_DISC_OBJS = $(patsubst $(SRC)/%.cc, $(OBJ)/disc_%.o, $(SERVER_DISC_SRCS))
 server_mem: $(SERVER_MEM)
 
 $(SERVER_MEM): $(SERVER_MEM_OBJS)
-	@mkdir -p $(BIN)
 	$(CXX) $^ -o $@
 
 server_disc: $(SERVER_DISC)
 
 $(SERVER_DISC): $(SERVER_DISC_OBJS)
-	@mkdir -p $(BIN)
 	$(CXX) $^ -o $@
 
 $(OBJ)/mem_%.o: $(SRC)/%.cc
@@ -115,9 +112,10 @@ $(eval $(call build_executable,$(ERR_CLIENT),$(ERR_CLIENT_OBJS)))
 
 
 install: all
-	cp $(SRC)/client $(BIN)/client
-	cp $(SRC)/server_mem $(BIN)/server_mem
-	cp $(SRC)/server_disc $(BIN)/server_disc
+	@mkdir -p $(BIN)
+	@cp $(SRC)/client $(BIN)/client
+	@cp $(SRC)/server_mem $(BIN)/server_mem
+	@cp $(SRC)/server_disc $(BIN)/server_disc
 
 
 # Rule for creating object files
@@ -128,6 +126,7 @@ $(OBJ)/%.o: $(SRC)/%.cc
 # Clean target to remove object files and executable
 clean:
 	rm -rf $(OBJ) $(BIN)
+	rm -rf $(SRC)/Database
 	rm ${SRC}/client 
 	rm ${SRC}/server_mem
 	rm ${SRC}/server_disc 
