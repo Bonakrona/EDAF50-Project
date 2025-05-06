@@ -85,6 +85,9 @@ $(OBJ)/disc_%.o: $(SRC)/%.cc
 	@mkdir -p $(OBJ)
 	$(CXX) $(CXXFLAGS_DISC) -c $< -o $@
 
+
+server: server_mem server_disc
+
 ## CLIENT:
 CLIENT = $(SRC)/client
 CLIENT_SRCS = \
@@ -130,6 +133,8 @@ clean:
 	rm ${SRC}/client 
 	rm ${SRC}/server_mem
 	rm ${SRC}/server_disc 
+	rm ${SRC}/TestDatabase
+	rm ${SRC}/error_client 
 
 # Phony targets (clean, all)
 .PHONY: all clean test_db client server install
