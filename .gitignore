@@ -31,9 +31,12 @@
 *.out
 *.app
 
+# project specific
 .vscode/*
 bin/*
 *:Zone.Identifier
+src/*
+!src/*.cc
 
 # Ignore disk Database
 Database/
