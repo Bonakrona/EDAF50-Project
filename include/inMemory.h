@@ -27,7 +27,6 @@ public:
 
 private:
     std::map<unsigned long long, Newsgroup> newsgroups;
-    // std::unordered_map<unsigned long long, Newsgroup> newsgroups; // commented, in order to pass tests (requires groups to be listed in order of 'id')
     std::unordered_set<std::string> newsgroupNames;
     unsigned long long nextNewsgroupID; // technically maximum here
 };

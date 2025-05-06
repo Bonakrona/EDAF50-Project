@@ -13,7 +13,7 @@ using std::string;
 class Database
 {
 public:
-    Database() = default; // <-- Add this line
+    Database() = default;
     virtual ~Database() = default;
     virtual std::vector<Newsgroup> listNewsgroups() = 0;
     virtual bool addNewsgroup(const string n) = 0;

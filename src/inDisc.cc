@@ -5,21 +5,23 @@
 
 inDisc::inDisc()
 {
-    if (fs::exists(root))
+    fs::path metadataPath = root / "metadata.txt";
+    if (fs::exists(root) && fs::exists(metadataPath))
     {
-        loadDisc();
+        loadFromDisc();
+    }
+    else if(fs::exists(root) && !fs::exists(metadataPath))
+    {
+        fs::remove_all(root);
+        createOnDisc();
     }
     else
     {
-        fs::create_directories("Database");
-        fs::path metadataPath = root / "metadata.txt";
-        nextNewsgroupID = 1;
-        std::ofstream metadata(metadataPath);
-        metadata << nextNewsgroupID;
+        createOnDisc();
     }
 }
 
-void inDisc::loadDisc(){
+void inDisc::loadFromDisc(){
     fs::path metadataPath = root / "metadata.txt";
     std::ifstream in(metadataPath);
     in >> nextNewsgroupID;
@@ -49,6 +51,9 @@ void inDisc::loadDisc(){
             if (fs::exists(directoryMetadata)) {
                 std::ifstream in(directoryMetadata);
                 in >> newsgroupNextArticleID;
+            } else {
+                fs::remove_all(newsgroupDirectory);
+                continue;
             }
             newsgroups[id] = Newsgroup(name, id, newsgroupNextArticleID);
             newsgroupNames.insert(name);
@@ -81,6 +86,14 @@ void inDisc::loadDisc(){
             }
         }
     }
+}
+
+void inDisc::createOnDisc(){
+    fs::create_directories("Database");
+    fs::path metadataPath = root / "metadata.txt";
+    nextNewsgroupID = 1;
+    std::ofstream metadata(metadataPath);
+    metadata << nextNewsgroupID;
 }
 
 std::vector<fs::path> inDisc::findDirectories(fs::path currentPath)
