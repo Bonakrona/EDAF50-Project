@@ -130,11 +130,11 @@ $(OBJ)/%.o: $(SRC)/%.cc
 clean:
 	rm -rf $(OBJ) $(BIN)
 	rm -rf $(SRC)/Database
-	rm ${SRC}/client 
-	rm ${SRC}/server_mem
-	rm ${SRC}/server_disc 
-	rm ${SRC}/TestDatabase
-	rm ${SRC}/error_client 
+	rm -f ${SRC}/client 
+	rm -f ${SRC}/server_mem
+	rm -f ${SRC}/server_disc 
+	rm -f ${SRC}/TestDatabase
+	rm -f ${SRC}/error_client 
 
 # Phony targets (clean, all)
 .PHONY: all clean test_db client server install
